@@ -30,6 +30,12 @@ void delete_list(List* self, int data);
 // Function to free the memory allocated to a list and all its nodes.
 void destroy_list(List* self);
 
+// Function to reverse a list and return a new list.
+List reverse(List* self);
+
+// Function to merge two ordered lists into a new ordered list.
+List merge(List* list1, List* list2);
+
 // Function to test the list implementation.
 void list_test();
 

@@ -92,6 +92,44 @@ void destroy_list(List* self) {
 	self->head = NULL;
 }
 
+List reverse(List* self) {
+    List reversed_list = new_list();
+    ListNodePtr current = self->head;
+    while (current != NULL) {
+        insert_at_front(&reversed_list, current->data);
+        current = current->next;
+    }
+    return reversed_list;
+}
+
+List merge(List* list1, List* list2) {
+    List merged_list = new_list();
+    ListNodePtr current1 = list1->head;
+    ListNodePtr current2 = list2->head;
+
+    while (current1 != NULL && current2 != NULL) {
+        if (current1->data < current2->data) {
+            insert_in_order(&merged_list, current1->data);
+            current1 = current1->next;
+        } else {
+            insert_in_order(&merged_list, current2->data);
+            current2 = current2->next;
+        }
+    }
+
+    while (current1 != NULL) {
+        insert_in_order(&merged_list, current1->data);
+        current1 = current1->next;
+    }
+
+    while (current2 != NULL) {
+        insert_in_order(&merged_list, current2->data);
+        current2 = current2->next;
+    }
+
+    return merged_list;
+}
+
 void option_insert(List* my_list) {
     int data;
     printf("Enter a number to insert: ");
@@ -122,6 +160,8 @@ void list_adhoc_test() {
         printf("1: Insert\n");
         printf("2: Delete\n");
         printf("3: Print\n");
+        printf("4: Reverse\n");
+        printf("5: Merge\n");
         printf("Enter your option: ");
         scanf("%d", &option);
 
@@ -138,6 +178,29 @@ void list_adhoc_test() {
             case 3:
                 option_print(&my_list);
                 break;
+            case 4: {
+                List reversed_list = reverse(&my_list);
+                printf("Reversed list: ");
+                print_list(&reversed_list);
+                destroy_list(&reversed_list);
+                break;
+            }
+            case 5: {
+                List list2 = new_list();
+                printf("Enter elements for the second list (end with 0):\n");
+                int data;
+                while (1) {
+                    scanf("%d", &data);
+                    if (data == 0) break;
+                    insert_in_order(&list2, data);
+                }
+                List merged_list = merge(&my_list, &list2);
+                printf("Merged list: ");
+                print_list(&merged_list);
+                destroy_list(&list2);
+                destroy_list(&merged_list);
+                break;
+            }
             default:
                 printf("Invalid option. Please try again.\n");
         }
