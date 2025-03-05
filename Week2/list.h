@@ -1,4 +1,4 @@
-/ This header file contains declarations for a singly linked list data structure implementation in C.
+// This header file contains declarations for a singly linked list data structure implementation in C.
 #pragma once 
 
 // Definition of a singly linked list node struct with an integer data field and a pointer to the next node.
@@ -16,16 +16,19 @@ typedef struct list {
 List new_list();
 
 // Function to print the contents of a list.
-void print_list(List * self);
+void print_list(List* self);
 
 // Function to insert a new node with given data at the front of the list.
-void insert_at_front(List * self, int data);
+void insert_at_front(List* self, int data);
 
 // Function to insert a new node with given data in the list in ascending order.
-void insert_in_order(List * self, int data);
+void insert_in_order(List* self, int data);
 
 // Function to delete the first occurrence of a node with given data from the list.
-void delete_list(List * self, int data);
+void delete_list(List* self, int data);
 
 // Function to free the memory allocated to a list and all its nodes.
-void destroy_list(List * self);
+void destroy_list(List* self);
+
+// Function to test the list implementation.
+void list_test();
