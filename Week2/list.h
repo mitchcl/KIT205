@@ -32,3 +32,6 @@ void destroy_list(List* self);
 
 // Function to test the list implementation.
 void list_test();
+
+// Function for ad-hoc testing of the list implementation.
+void list_adhoc_test();

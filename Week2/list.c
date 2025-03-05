@@ -92,6 +92,60 @@ void destroy_list(List* self) {
 	self->head = NULL;
 }
 
+void option_insert(List* my_list) {
+    int data;
+    printf("Enter a number to insert: ");
+    scanf("%d", &data);
+    insert_at_front(my_list, data);
+}
+
+void option_delete(List* my_list) {
+    int data;
+    printf("Enter a number to delete: ");
+    scanf("%d", &data);
+    delete_list(my_list, data);
+}
+
+void option_print(List* my_list) {
+    printf("List contents: ");
+    print_list(my_list);
+}
+
+void list_adhoc_test() {
+    List my_list = new_list();
+    int quit = 0;
+
+    while (!quit) {
+        int option;
+        printf("Menu:\n");
+        printf("0: Quit\n");
+        printf("1: Insert\n");
+        printf("2: Delete\n");
+        printf("3: Print\n");
+        printf("Enter your option: ");
+        scanf("%d", &option);
+
+        switch (option) {
+            case 0:
+                quit = 1;
+                break;
+            case 1:
+                option_insert(&my_list);
+                break;
+            case 2:
+                option_delete(&my_list);
+                break;
+            case 3:
+                option_print(&my_list);
+                break;
+            default:
+                printf("Invalid option. Please try again.\n");
+        }
+    }
+
+    destroy_list(&my_list);
+}
+
 void list_test() {
     List test_list = new_list();
     printf("Testing insert_at_front... \n");
