@@ -41,3 +41,8 @@ void list_test();
 
 // Function for ad-hoc testing of the list implementation.
 void list_adhoc_test();
+
+// Helper functions for list_adhoc_test
+void option_insert(List* self);
+void option_delete(List* self);
+void option_print(List* self);

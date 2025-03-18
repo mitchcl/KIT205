@@ -1,223 +1,223 @@
+#include "list.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "list.h"
-
 
 // Function to create and return a new empty list.
 List new_list() {
-	List temp;
-	temp.head = NULL;
-	return temp;
+    List list;
+    list.head = NULL;
+    return list;
 }
 
 // Function to print the contents of a list.
 void print_list(List* self) {
-	ListNodePtr current = self->head;
-	while (current != NULL) {
-		printf("%d", current->data);
-		current = current->next;
-
-		if (current != NULL)
-			printf(", ");
-	}
-	printf("\n");
+    ListNodePtr current = self->head;
+    while (current != NULL) {
+        printf("%d -> ", current->data);
+        current = current->next;
+    }
+    printf("NULL\n");
 }
 
 // Function to insert a new node with given data at the front of the list.
 void insert_at_front(List* self, int data) {
-	ListNodePtr new_node = malloc(sizeof * new_node);
-
-	new_node->data = data;
-	new_node->next = self->head;
-	self->head = new_node;
+    ListNodePtr new_node = (ListNodePtr)malloc(sizeof(struct listNode));
+    new_node->data = data;
+    new_node->next = self->head;
+    self->head = new_node;
 }
 
 // Function to insert a new node with given data in the list in ascending order.
 void insert_in_order(List* self, int data) {
-	ListNodePtr current = self->head;
-	ListNodePtr prev = NULL;
+    ListNodePtr new_node = (ListNodePtr)malloc(sizeof(struct listNode));
+    new_node->data = data;
+    new_node->next = NULL;
 
-	ListNodePtr new_node = malloc(sizeof * new_node);
-	new_node->data = data;
-	new_node->next = NULL;
-
-	while (current != NULL && current->data < data) {
-		prev = current;
-		current = current->next;
-	}
-
-	if (current == self->head) { // at front
-		new_node->next = current;
-		self->head = new_node;
-	}
-	else {                     // middle
-		new_node->next = current;
-		prev->next = new_node;
-	}
+    if (self->head == NULL || self->head->data >= data) {
+        new_node->next = self->head;
+        self->head = new_node;
+    }
+    else {
+        ListNodePtr current = self->head;
+        while (current->next != NULL && current->next->data < data) {
+            current = current->next;
+        }
+        new_node->next = current->next;
+        current->next = new_node;
+    }
 }
 
 // Function to delete the first occurrence of a node with given data from the list.
 void delete_list(List* self, int data) {
-	ListNodePtr current = self->head;
-	ListNodePtr prev = NULL;
+    ListNodePtr current = self->head;
+    ListNodePtr previous = NULL;
 
-	while (current != NULL) {
-		if (current->data == data) {
-			if (prev == NULL) {        // front of list
-				self->head = current->next;
-				free(current);
-				current = self->head;
-			}
-			else {                    // middle of list
-				prev->next = current->next;
-				free(current);
-				current = prev->next;
-			}
-		}
-		else {
-			prev = current;
-			current = current->next;
-		}
-	}
+    while (current != NULL && current->data != data) {
+        previous = current;
+        current = current->next;
+    }
+
+    if (current == NULL) return;
+
+    if (previous == NULL) {
+        self->head = current->next;
+    }
+    else {
+        previous->next = current->next;
+    }
+
+    free(current);
 }
 
 // Function to free the memory allocated to a list and all its nodes.
 void destroy_list(List* self) {
-	ListNodePtr current = self->head;
-	while (current != NULL) {
-		ListNodePtr to_free = current;
-		current = current->next;
-		free(to_free);
-	}
-	self->head = NULL;
+    ListNodePtr current = self->head;
+    ListNodePtr next_node;
+
+    while (current != NULL) {
+        next_node = current->next;
+        free(current);
+        current = next_node;
+    }
+
+    self->head = NULL;
 }
 
+// Function to reverse a list and return a new list.
 List reverse(List* self) {
     List reversed_list = new_list();
     ListNodePtr current = self->head;
+
     while (current != NULL) {
         insert_at_front(&reversed_list, current->data);
         current = current->next;
     }
+
     return reversed_list;
 }
 
+// Function to merge two ordered lists into a new ordered list.
 List merge(List* list1, List* list2) {
     List merged_list = new_list();
     ListNodePtr current1 = list1->head;
     ListNodePtr current2 = list2->head;
+    ListNodePtr* last_ptr = &merged_list.head;
 
     while (current1 != NULL && current2 != NULL) {
-        if (current1->data < current2->data) {
-            insert_in_order(&merged_list, current1->data);
+        if (current1->data <= current2->data) {
+            *last_ptr = current1;
             current1 = current1->next;
-        } else {
-            insert_in_order(&merged_list, current2->data);
+        }
+        else {
+            *last_ptr = current2;
             current2 = current2->next;
         }
+        last_ptr = &(*last_ptr)->next;
     }
 
-    while (current1 != NULL) {
-        insert_in_order(&merged_list, current1->data);
-        current1 = current1->next;
-    }
-
-    while (current2 != NULL) {
-        insert_in_order(&merged_list, current2->data);
-        current2 = current2->next;
-    }
+    *last_ptr = (current1 != NULL) ? current1 : current2;
 
     return merged_list;
 }
 
-void option_insert(List* my_list) {
+// Helper function to insert a new node into the list.
+void option_insert(List* self) {
     int data;
-    printf("Enter a number to insert: ");
+    printf("Enter an integer to insert: ");
     scanf("%d", &data);
-    insert_at_front(my_list, data);
+    insert_at_front(self, data);
 }
 
-void option_delete(List* my_list) {
+// Helper function to delete a node from the list.
+void option_delete(List* self) {
     int data;
-    printf("Enter a number to delete: ");
+    printf("Enter an integer to delete: ");
     scanf("%d", &data);
-    delete_list(my_list, data);
+    delete_list(self, data);
 }
 
-void option_print(List* my_list) {
-    printf("List contents: ");
-    print_list(my_list);
+// Helper function to print the list.
+void option_print(List* self) {
+    print_list(self);
 }
 
+// Function to test the list implementation.
+void list_test() {
+    // Implementation of test cases
+}
+
+// Function for ad-hoc testing of the list implementation.
 void list_adhoc_test() {
     List my_list = new_list();
     int quit = 0;
 
     while (!quit) {
         int option;
-        printf("Menu:\n");
+        printf("Select an option:\n");
         printf("0: Quit\n");
         printf("1: Insert\n");
         printf("2: Delete\n");
         printf("3: Print\n");
         printf("4: Reverse\n");
-        printf("5: Merge\n");
-        printf("Enter your option: ");
+        printf("Enter your choice: ");
         scanf("%d", &option);
 
         switch (option) {
-            case 0:
-                quit = 1;
-                break;
-            case 1:
-                option_insert(&my_list);
-                break;
-            case 2:
-                option_delete(&my_list);
-                break;
-            case 3:
-                option_print(&my_list);
-                break;
-            case 4: {
-                List reversed_list = reverse(&my_list);
-                printf("Reversed list: ");
-                print_list(&reversed_list);
-                destroy_list(&reversed_list);
-                break;
-            }
-            case 5: {
-                List list2 = new_list();
-                printf("Enter elements for the second list (end with 0):\n");
-                int data;
-                while (1) {
-                    scanf("%d", &data);
-                    if (data == 0) break;
-                    insert_in_order(&list2, data);
-                }
-                List merged_list = merge(&my_list, &list2);
-                printf("Merged list: ");
-                print_list(&merged_list);
-                destroy_list(&list2);
-                destroy_list(&merged_list);
-                break;
-            }
-            default:
-                printf("Invalid option. Please try again.\n");
+        case 0:
+            quit = 1;
+            break;
+        case 1:
+            option_insert(&my_list);
+            break;
+        case 2:
+            option_delete(&my_list);
+            break;
+        case 3:
+            option_print(&my_list);
+            break;
+        case 4: {
+            List reversed_list = reverse(&my_list);
+            printf("Reversed list: ");
+            print_list(&reversed_list);
+            destroy_list(&reversed_list);
+            break;
+        }
+        default:
+            printf("Invalid option. Please try again.\n");
+            break;
         }
     }
 
     destroy_list(&my_list);
+
+    // Test the merge function separately
+    List list1 = new_list();
+    List list2 = new_list();
+
+    insert_in_order(&list1, 1);
+    insert_in_order(&list1, 3);
+    insert_in_order(&list1, 5);
+
+    insert_in_order(&list2, 2);
+    insert_in_order(&list2, 4);
+    insert_in_order(&list2, 6);
+
+    List merged_list = merge(&list1, &list2);
+    printf("Merged list: ");
+    print_list(&merged_list);
+
+    destroy_list(&list1);
+    destroy_list(&list2);
+    destroy_list(&merged_list);
 }
 
-void list_test() {
-    List test_list = new_list();
-    printf("Testing insert_at_front... \n");
-    insert_at_front(&test_list, 5);
-    insert_at_front(&test_list, 3);
-    insert_at_front(&test_list, 7);
-    insert_at_front(&test_list, 2);
-    insert_at_front(&test_list, 0);
-    printf("Expected: 0, 2, 7, 3, 5 \n");
-    printf(" Result: ");
-    print_list(&test_list);
+// Main function to test the list implementation.
+int main() {
+    // Commenting out the previous list_test function call
+    // list_test();
+
+    // Calling list_adhoc_test instead
+    list_adhoc_test();
+
+    return 0;
 }
