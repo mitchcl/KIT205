@@ -124,7 +124,7 @@ List merge(List* list1, List* list2) {
 void option_insert(List* self) {
     int data;
     printf("Enter an integer to insert: ");
-    scanf("%d", &data);
+    scanf_s("%d", &data);
     insert_at_front(self, data);
 }
 
@@ -132,7 +132,7 @@ void option_insert(List* self) {
 void option_delete(List* self) {
     int data;
     printf("Enter an integer to delete: ");
-    scanf("%d", &data);
+    scanf_s("%d", &data);
     delete_list(self, data);
 }
 
@@ -160,7 +160,7 @@ void list_adhoc_test() {
         printf("3: Print\n");
         printf("4: Reverse\n");
         printf("Enter your choice: ");
-        scanf("%d", &option);
+        scanf_s("%d", &option);
 
         switch (option) {
         case 0:
@@ -209,15 +209,4 @@ void list_adhoc_test() {
     destroy_list(&list1);
     destroy_list(&list2);
     destroy_list(&merged_list);
-}
-
-// Main function to test the list implementation.
-int main() {
-    // Commenting out the previous list_test function call
-    // list_test();
-
-    // Calling list_adhoc_test instead
-    list_adhoc_test();
-
-    return 0;
 }

@@ -19,11 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{55a42fe2-e387-4aeb-b8e4-912b86089ac5}</ProjectGuid>
-    <RootNamespace>Week2</RootNamespace>
+    <ProjectGuid>{9E4096FB-6E4E-4C54-B693-ED30AFC81346}</ProjectGuid>
+    <RootNamespace>Week2Rebuild</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Week2</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -126,6 +127,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="list.c" />
+    <ClCompile Include="main.c" />
+  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="list.h" />
   </ItemGroup>
