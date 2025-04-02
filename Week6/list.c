@@ -1,6 +1,8 @@
 // list_wk5.c
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "list.h"
 
 //TODO: change data type to char*
@@ -19,8 +21,9 @@ void print_list(List* self) {
 		printf("%s", current->data);
 		current = current->next;
 
-		if (current != NULL)
+		if (current != NULL) {
 			printf(", ");
+		}
 	}
 	printf("\n");
 }
@@ -75,4 +78,31 @@ void destroy_list(List* self) {
 		free(to_free);
 	}
 	self->head = NULL;
+}
+
+void list_test() {
+	List test_list = new_list();
+
+	printf("Testing insert_at_front...\n");
+	insert_at_front(&test_list, "test5");
+	insert_at_front(&test_list, "test4");
+	insert_at_front(&test_list, "test3");
+	insert_at_front(&test_list, "test2");
+	insert_at_front(&test_list, "test1");
+
+	printf("Expected: test1, test2, test3, test4, test5\n");
+	printf("  Result: ");
+	print_list(&test_list);
+
+	printf("\nTesting delete_from_list...\n");
+	delete_from_list(&test_list, "test4");
+	printf("Expected: test1, test2, test3, test5\n");
+	printf("  Result: ");
+	print_list(&test_list);
+
+	printf("\nTesting destroy_list...\n");
+	destroy_list(&test_list);
+	printf("List should be empty now.\n");
+	printf("  Result: ");
+	print_list(&test_list);
 }

@@ -143,7 +143,30 @@ void option_print(List* self) {
 
 // Function to test the list implementation.
 void list_test() {
-    // Implementation of test cases
+    List test_list = new_list();
+
+    printf("Testing insert_at_front...\n");
+    insert_at_front(&test_list, "5");
+    insert_at_front(&test_list, "3");
+    insert_at_front(&test_list, "7");
+    insert_at_front(&test_list, "2");
+    insert_at_front(&test_list, "0");
+
+    printf("Expected: 0, 2, 7, 3, 5\n");
+    printf("  Result: ");
+    print_list(&test_list);
+
+    printf("\nTesting delete_from_list...\n");
+    delete_from_list(&test_list, "7");
+    printf("Expected: 0, 2, 3, 5\n");
+    printf("  Result: ");
+    print_list(&test_list);
+
+    printf("\nTesting destroy_list...\n");
+    destroy_list(&test_list);
+    printf("List should be empty now.\n");
+    printf("  Result: ");
+    print_list(&test_list);
 }
 
 // Function for ad-hoc testing of the list implementation.

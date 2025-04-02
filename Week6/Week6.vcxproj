@@ -127,13 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="hashtable.h" />
     <ClInclude Include="list.h" />
+	<ClCompile Include="hashtable.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hashtable.c" />
+	<ClCompile Include="main.c" />
     <ClCompile Include="list.c" />
-    <ClCompile Include="main.c" />
+	<ClCompile Include="hashtable.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
