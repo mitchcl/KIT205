@@ -4,3 +4,10 @@
 - Identified many-to-many relationship between flights and passengers via reservations
 - Decided to compare two alternative data structure approaches for performance
 - Outlined initial requirements and planned data structure selection
+
+## April 18, 2025 - Data Structure Design
+
+- Designed data models for Flight, Passenger, and ReservationRecord
+- Planned Prototype 1: BST for flights, Linked List for passengers, Array for reservations
+- Planned Prototype 2: AVL Tree for flights, Hash Table for passengers, BST for reservations
+- Sketched out header files and function prototypes for each module
