@@ -11,3 +11,10 @@
 - Planned Prototype 1: BST for flights, Linked List for passengers, Array for reservations
 - Planned Prototype 2: AVL Tree for flights, Hash Table for passengers, BST for reservations
 - Sketched out header files and function prototypes for each module
+
+## April 22, 2025 - Initial Implementation
+
+- Implemented BST for flights (Prototype 1)
+- Implemented linked list for passengers (Prototype 1)
+- Implemented array for reservations (Prototype 1)
+- Wrote basic insert, search, and print functions for each structure
