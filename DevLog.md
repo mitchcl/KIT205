@@ -18,3 +18,11 @@
 - Implemented linked list for passengers (Prototype 1)
 - Implemented array for reservations (Prototype 1)
 - Wrote basic insert, search, and print functions for each structure
+
+## April 25, 2025 - Advanced Data Structures
+
+- Implemented AVL tree for flights (Prototype 2)
+- Implemented hash table for passengers (Prototype 2)
+- Implemented BST for reservations (Prototype 2)
+- Added collision handling for hash table
+- Added balancing logic for AVL tree

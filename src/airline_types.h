@@ -46,3 +46,41 @@ typedef struct {
 } ReservationArray;
 
 #endif
+
+// PROTOTYPE 2
+// AVL Tree node for flights
+typedef struct AVL_Node {
+    Flight data;
+    struct AVL_Node* left;
+    struct AVL_Node* right;
+    int height;
+} AVL_Node;
+
+// Hash table entry for passengers
+typedef struct HashEntry {
+    Passenger data;
+    int occupied;
+    struct HashEntry* next;
+} HashEntry;
+
+// Hash table for passengers
+typedef struct {
+    HashEntry* table;
+    int size;
+    int count;
+} PassengerHashTable;
+
+// Reservation BST for efficient lookup
+typedef struct ReservationBST_Node {
+    ReservationRecord data;
+    struct ReservationBST_Node* left;
+    struct ReservationBST_Node* right;
+} ReservationBST_Node;
+
+// BST container for reservation records
+typedef struct {
+    ReservationBST_Node* root;
+    int count;
+} ReservationBST;
+
+#endif
