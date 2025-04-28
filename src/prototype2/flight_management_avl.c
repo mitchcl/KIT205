@@ -33,7 +33,7 @@ int avl_get_balance(AVL_Node* node) {
 }
 
 // Get maximum of two integers
-static int max(int a, int b) {
+static int max_value(int a, int b) {
     return (a > b) ? a : b;
 }
 
@@ -47,8 +47,8 @@ AVL_Node* avl_right_rotate(AVL_Node* y) {
     y->left = T2;
     
     // Update heights
-    y->height = max(avl_height(y->left), avl_height(y->right)) + 1;
-    x->height = max(avl_height(x->left), avl_height(x->right)) + 1;
+    y->height = max_value(avl_height(y->left), avl_height(y->right)) + 1;
+    x->height = max_value(avl_height(x->left), avl_height(x->right)) + 1;
     
     // Return new root
     return x;
@@ -84,7 +84,7 @@ AVL_Node* avl_insert(AVL_Node* node, Flight flight) {
     }
         
     // 2. Update height of this ancestor node
-    node->height = 1 + max(avl_height(node->left), avl_height(node->right));
+    node->height = 1 + max_value(avl_height(node->left), avl_height(node->right));
     
     // 3. Get the balance factor
     int balance = avl_get_balance(node);
