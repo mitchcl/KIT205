@@ -1,0 +1,4 @@
+id,flightNumber,origin,destination,departureTime,capacity
+1,AA123,New York,London,2025-05-01 08:30:00,250
+2,BA456,London,Paris,2025-05-02 09:45:00,180
+3,DL789,Los Angeles,Tokyo,2025-05-03 12:15:00,300

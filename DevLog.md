@@ -26,3 +26,9 @@
 - Implemented BST for reservations (Prototype 2)
 - Added collision handling for hash table
 - Added balancing logic for AVL tree
+
+## April 28, 2025 - Data Loading and Generation
+- caused myself migraines
+- Implemented CSV file loading for flights, passengers, and reservations
+- Developed random data generator for large-scale testing
+- Added helper functions for random names, flight numbers, and seat assignments
