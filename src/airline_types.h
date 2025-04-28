@@ -45,8 +45,6 @@ typedef struct {
     int capacity;
 } ReservationArray;
 
-#endif
-
 // PROTOTYPE 2
 // AVL Tree node for flights
 typedef struct AVL_Node {
