@@ -32,3 +32,10 @@
 - Implemented CSV file loading for flights, passengers, and reservations
 - Developed random data generator for large-scale testing
 - Added helper functions for random names, flight numbers, and seat assignments
+
+## May 1, 2025 - Testing and Debugging
+- Home stretch
+- Created unit tests for all data structures and search functions
+- Fixed bugs in insert and search logic
+- Verified correctness with small and large datasets
+- Improved error handling and memory management

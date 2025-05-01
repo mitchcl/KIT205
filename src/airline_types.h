@@ -3,6 +3,8 @@
 
 #include <time.h>
 
+#define MAX_FLIGHT_ID_LENGTH 8  // Define the maximum length for flight IDs
+
 typedef struct {
     int id;
     char flightNumber[20];
