@@ -119,3 +119,17 @@ int check_data_loaded(int data_loaded) {
     }
     return 1;
 }
+
+// Function to run performance tests with user-specified dataset size
+void run_custom_performance_tests() {
+    int dataset_size;
+    printf("Enter dataset size for performance testing: ");
+    scanf("%d", &dataset_size);
+    
+    if (dataset_size <= 0) {
+        printf("Invalid dataset size\n");
+        return;
+    }
+    
+    run_performance_tests(dataset_size);
+}

@@ -39,3 +39,10 @@
 - Fixed bugs in insert and search logic
 - Verified correctness with small and large datasets
 - Improved error handling and memory management
+
+## May 3, 2025 - Performance Testing
+
+- Added timing measurements for structure building and search operations
+- Implemented a comprehensive performance testing framework
+- Created large datasets for benchmarking (10,000+ records)
+- Documented performance results and analysis

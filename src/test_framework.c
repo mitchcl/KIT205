@@ -148,3 +148,105 @@ void run_all_tests() {
     
     printf("\nAll tests completed.\n");
 }
+
+// Measure execution time of a function
+double measure_execution_time(void (*func)(void*), void* arg) {
+    clock_t start, end;
+    double cpu_time_used;
+    
+    start = clock();
+    func(arg);
+    end = clock();
+    
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    return cpu_time_used;
+}
+
+// Function to build BST for flights (prototype 1)
+void build_bst(void* arg) {
+    PerformanceTestArgs* args = (PerformanceTestArgs*)arg;
+    Flight* flights = (Flight*)args->p1;
+    int flight_count = *((int*)args->p2);
+    BST_Node** root_ptr = (BST_Node**)args->p3;
+    
+    *root_ptr = NULL;
+    for (int i = 0; i < flight_count; i++) {
+        *root_ptr = insert(*root_ptr, flights[i]);
+    }
+}
+
+// Function to build AVL tree for flights (prototype 2)
+void build_avl(void* arg) {
+    PerformanceTestArgs* args = (PerformanceTestArgs*)arg;
+    Flight* flights = (Flight*)args->p1;
+    int flight_count = *((int*)args->p2);
+    AVL_Node** root_ptr = (AVL_Node**)args->p3;
+    
+    *root_ptr = NULL;
+    for (int i = 0; i < flight_count; i++) {
+        *root_ptr = avl_insert(*root_ptr, flights[i]);
+    }
+}
+
+// Run performance tests with given dataset size
+void run_performance_tests(int dataset_size) {
+    printf("\n===== Performance Tests with %d Records =====\n", dataset_size);
+    
+    // Generate test data
+    printf("Generating test data...\n");
+    Flight* flights = generate_flights(dataset_size);
+    Passenger* passengers = generate_passengers(dataset_size);
+    ReservationRecord* reservations = generate_reservations(dataset_size * 2, dataset_size, dataset_size);
+    
+    if (flights == NULL || passengers == NULL || reservations == NULL) {
+        printf("Failed to generate test data\n");
+        return;
+    }
+    
+    // Run performance tests
+    test_prototype1_performance(flights, dataset_size, passengers, dataset_size, reservations, dataset_size * 2);
+    test_prototype2_performance(flights, dataset_size, passengers, dataset_size, reservations, dataset_size * 2);
+    
+    // Cleanup
+    free(flights);
+    free(passengers);
+    free(reservations);
+}
+
+// Test performance of prototype 1
+void test_prototype1_performance(Flight* flights, int flight_count, 
+                              Passenger* passengers, int passenger_count,
+                              ReservationRecord* reservations, int reservation_count) {
+    printf("\n----- Prototype 1 Performance -----\n");
+    
+    // Test BST build time
+    BST_Node* bst_root = NULL;
+    PerformanceTestArgs bst_args = { flights, &flight_count, &bst_root };
+    double bst_build_time = measure_execution_time(build_bst, &bst_args);
+    printf("BST build time: %.6f seconds\n", bst_build_time);
+    
+    // Test other operations
+    // ...
+    
+    // Cleanup
+    free_tree(bst_root);
+}
+
+// Test performance of prototype 2
+void test_prototype2_performance(Flight* flights, int flight_count, 
+                              Passenger* passengers, int passenger_count,
+                              ReservationRecord* reservations, int reservation_count) {
+    printf("\n----- Prototype 2 Performance -----\n");
+    
+    // Test AVL build time
+    AVL_Node* avl_root = NULL;
+    PerformanceTestArgs avl_args = { flights, &flight_count, &avl_root };
+    double avl_build_time = measure_execution_time(build_avl, &avl_args);
+    printf("AVL build time: %.6f seconds\n", avl_build_time);
+    
+    // Test other operations
+    // ...
+    
+    // Cleanup
+    free_avl_tree(avl_root);
+}
