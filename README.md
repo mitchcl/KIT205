@@ -131,17 +131,18 @@ The program includes comprehensive performance testing that:
   - `reservations.csv`: Reservation records
 
 ## References and Resources Used
+
+In accordance with the academic integrity requirements, the following resources were used in developing this project:
+
 ### Books and Academic Resources
-- Tutorial code
 - Introduction to Algorithms by Cormen et al. - For BST, AVL, and Hash Table concepts
 - Data Structures and Algorithm Analysis by Mark Allen Weiss - For data structure implementation techniques
 - The C Programming Language (K&R) - For C syntax and file I/O operations
-- The Art of Computer Programming by Donald Knuth (Volume 3: Sorting and Searching) - For code techniques
+- The Art of Computer Programming by Donald Knuth (Volume 3: Sorting and Searching) - For analysis techniques
 
 ### Online Resources
 - Stack Overflow - For random number generation techniques and memory management practices
 - GeeksforGeeks - For BST and AVL tree implementation examples
-- Copilot - For code snippets and examples of data structure implementations. Also helped in generating test cases and debugging because this was a HEADACHE.
 
 All code implementations based on these resources are properly documented with source citations in the comments of relevant files.
 
@@ -152,8 +153,6 @@ The development process is documented in the DevLog.md file, including:
 - Testing strategies
 - Performance optimization
 - Challenges encountered and solutions
-
-I didn't realise I had to do this in the normal Github repo, so i've kept it as an md in case.
 
 ## Evaluation
 

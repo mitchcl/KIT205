@@ -1,3 +1,12 @@
+/*
+ * Flight Management AVL Tree Implementation (Prototype 2)
+ * 
+ * Sources used:
+ * 1. Introduction to Algorithms by Cormen et al. - AVL tree concepts
+ * 2. Data Structures and Algorithm Analysis by Mark Allen Weiss - Tree rotations
+ * 3. The Art of Computer Programming by Donald Knuth - Balance factors
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "flight_management_avl.h"
@@ -33,7 +42,7 @@ int avl_get_balance(AVL_Node* node) {
 }
 
 // Get maximum of two integers
-static int max_value(int a, int b) {
+static int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
@@ -47,8 +56,8 @@ AVL_Node* avl_right_rotate(AVL_Node* y) {
     y->left = T2;
     
     // Update heights
-    y->height = max_value(avl_height(y->left), avl_height(y->right)) + 1;
-    x->height = max_value(avl_height(x->left), avl_height(x->right)) + 1;
+    y->height = max(avl_height(y->left), avl_height(y->right)) + 1;
+    x->height = max(avl_height(x->left), avl_height(x->right)) + 1;
     
     // Return new root
     return x;
@@ -59,81 +68,84 @@ AVL_Node* avl_left_rotate(AVL_Node* x) {
     AVL_Node* y = x->right;
     AVL_Node* T2 = y->left;
     
+    // Perform rotation
     y->left = x;
     x->right = T2;
     
+    // Update heights
     x->height = max(avl_height(x->left), avl_height(x->right)) + 1;
     y->height = max(avl_height(y->left), avl_height(y->right)) + 1;
     
+    // Return new root
     return y;
 }
 
 // Insert a flight into the AVL tree
-AVL_Node* avl_insert(AVL_Node* node, Flight flight) {
+AVL_Node* avl_insert(AVL_Node* root, Flight flight) {
     // 1. Perform standard BST insert
-    if (node == NULL)
+    if (root == NULL)
         return avl_create_node(flight);
-        
-    if (flight.id < node->data.id)
-        node->left = avl_insert(node->left, flight);
-    else if (flight.id > node->data.id)
-        node->right = avl_insert(node->right, flight);
-    else {
-        node->data = flight; // Equal keys not allowed in BST, update data
-        return node;
-    }
-        
-    // 2. Update height of this ancestor node
-    node->height = 1 + max_value(avl_height(node->left), avl_height(node->right));
     
-    // 3. Get the balance factor
-    int balance = avl_get_balance(node);
+    if (flight.id < root->data.id)
+        root->left = avl_insert(root->left, flight);
+    else if (flight.id > root->data.id)
+        root->right = avl_insert(root->right, flight);
+    else { // Equal ids, update flight details
+        root->data = flight;
+        return root;
+    }
+    
+    // 2. Update height of this ancestor node
+    root->height = 1 + max(avl_height(root->left), avl_height(root->right));
+    
+    // 3. Get the balance factor to check if this node became unbalanced
+    int balance = avl_get_balance(root);
     
     // Left Left Case
-    if (balance > 1 && flight.id < node->left->data.id)
-        return avl_right_rotate(node);
-        
+    if (balance > 1 && flight.id < root->left->data.id)
+        return avl_right_rotate(root);
+    
     // Right Right Case
-    if (balance < -1 && flight.id > node->right->data.id)
-        return avl_left_rotate(node);
-        
+    if (balance < -1 && flight.id > root->right->data.id)
+        return avl_left_rotate(root);
+    
     // Left Right Case
-    if (balance > 1 && flight.id > node->left->data.id) {
-        node->left = avl_left_rotate(node->left);
-        return avl_right_rotate(node);
+    if (balance > 1 && flight.id > root->left->data.id) {
+        root->left = avl_left_rotate(root->left);
+        return avl_right_rotate(root);
     }
     
     // Right Left Case
-    if (balance < -1 && flight.id < node->right->data.id) {
-        node->right = avl_right_rotate(node->right);
-        return avl_left_rotate(node);
+    if (balance < -1 && flight.id < root->right->data.id) {
+        root->right = avl_right_rotate(root->right);
+        return avl_left_rotate(root);
     }
     
-    // return the (unchanged) node pointer
-    return node;
+    // No rotation needed
+    return root;
 }
 
 // Find a flight in the AVL tree
 Flight* avl_find_flight(AVL_Node* root, int id) {
-    // Base cases: root is NULL or flight is at root
-    if (root == NULL || root->data.id == id) {
-        return root == NULL ? NULL : &(root->data);
-    }
+    if (root == NULL)
+        return NULL;
     
-    // Recursive search in the appropriate subtree
-    if (id < root->data.id) {
+    if (id == root->data.id)
+        return &(root->data);
+    
+    if (id < root->data.id)
         return avl_find_flight(root->left, id);
-    } else {
+    else
         return avl_find_flight(root->right, id);
-    }
 }
 
 // Print all flights in the AVL tree (in-order traversal)
 void avl_print_flights(AVL_Node* root) {
     if (root != NULL) {
         avl_print_flights(root->left);
-        printf("Flight ID: %d, Number: %s (Balance: %d)\n", 
-               root->data.id, root->data.flightNumber, avl_get_balance(root));
+        printf("Flight ID: %d, Number: %s, From: %s, To: %s\n", 
+               root->data.id, root->data.flightNumber, 
+               root->data.origin, root->data.destination);
         avl_print_flights(root->right);
     }
 }
