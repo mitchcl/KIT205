@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resource Files\prototype1">
+      <UniqueIdentifier>{43800871-6db4-42fb-82f1-2b2c5fa5950c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\prototype2">
+      <UniqueIdentifier>{799bcc01-5f85-4454-97d4-1100cfda90cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\data">
+      <UniqueIdentifier>{51d7fdd4-352c-4afa-8e4b-dd8f37cb69d2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+    <None Include="README.md" />
+    <None Include="DevLog.md" />
+    <None Include="data\flights.csv">
+      <Filter>Resource Files\data</Filter>
+    </None>
+    <None Include="data\passengers.csv">
+      <Filter>Resource Files\data</Filter>
+    </None>
+    <None Include="data\reservations.csv">
+      <Filter>Resource Files\data</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\airline_system.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data_generator.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file_loader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test_framework.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype1\reservation_management.c">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype1\passenger_management.c">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype1\flight_search.c">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype1\flight_management.c">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype1\passenger_search.c">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype2\reservation_management_bst.c">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype2\passenger_search_hash.c">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype2\passenger_management_hash.c">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype2\flight_search_avl.c">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype2\flight_management_avl.c">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\strcasestr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\airline_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data_generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\file_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test_framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype1\flight_management.h">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype1\flight_search.h">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype1\passenger_management.h">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype1\passenger_search.h">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype1\reservation_management.h">
+      <Filter>Resource Files\prototype1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype2\reservation_management_bst.h">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype2\passenger_search_hash.h">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype2\passenger_management_hash.h">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype2\flight_search_avl.h">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prototype2\flight_management_avl.h">
+      <Filter>Resource Files\prototype2</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

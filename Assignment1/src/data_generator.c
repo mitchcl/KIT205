@@ -6,6 +6,7 @@
  * 2. The C Programming Language (K&R) - file I/O operations
  * 3. "Algorithms in C" by Robert Sedgewick - Random data generation techniques
  */
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -8,6 +8,7 @@
  * 2. "C Interfaces and Implementations" by David R. Hanson - CSV parsing techniques
  * 3. "C: The Complete Reference" by Herbert Schildt - File handling best practices
  */
+#define _CRT_SECURE_NO_DEPRECATE
 
 #define _XOPEN_SOURCE // Required for strptime
 #include <stdio.h>
@@ -19,6 +20,22 @@
 
 #define DATE_FORMAT "%Y-%m-%d %H:%M:%S"
 #define BUFFER_SIZE 4096
+
+char* strptime(const char* s, const char* format, struct tm* tm) {
+    // For the specific format "%Y-%m-%d %H:%M:%S"
+    int year, month, day, hour, minute, second;
+    if (sscanf(s, "%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &minute, &second) == 6) {
+        tm->tm_year = year - 1900; // Years since 1900
+        tm->tm_mon = month - 1;    // Months are 0-11
+        tm->tm_mday = day;
+        tm->tm_hour = hour;
+        tm->tm_min = minute;
+        tm->tm_sec = second;
+        tm->tm_isdst = -1;        // Let system determine DST
+        return (char*)(s + strlen(s));
+    }
+    return NULL;
+}
 
 // Helper function to strip newline characters
 static void strip_newline(char* str) {
