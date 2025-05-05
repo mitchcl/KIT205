@@ -42,6 +42,23 @@ int check_data_loaded(int data_loaded);
 void build_data_structures();
 void display_data_summary();
 
+// Format timestamp for display
+char* format_timestamp_display(time_t timestamp) {
+    struct tm* tm_info = localtime(&timestamp);
+    static char buffer[26];
+    strftime(buffer, 26, "%Y-%m-%d %H:%M", tm_info);
+    return buffer;
+}
+
+// Helper function to check if data is loaded
+int check_data_loaded(int data_loaded) {
+    if (!data_loaded) {
+        printf("\nERROR: No data loaded. Please load data first (options 1 or 2).\n");
+        return 0;
+    }
+    return 1;
+}
+
 // Function to run prototype 1 (BST for flights, linked list for passengers, array for reservations)
 void run_prototype1(Flight* flights, int flight_count, Passenger* passengers, int passenger_count, ReservationRecord* reservations, int reservation_count) {
     printf("\n===== Running Prototype 1 =====\n");
@@ -53,20 +70,22 @@ void run_prototype1(Flight* flights, int flight_count, Passenger* passengers, in
     // Build data structures
     start = clock();
     
-    // Flights as BST
     BST_Node* flights_root = NULL;
+    LL_Node* passengers_head = NULL;
+    ReservationArray* reservations_array = NULL;
+    
+    // Flights as BST
     for (int i = 0; i < flight_count; i++) {
         flights_root = insert(flights_root, flights[i]);
     }
     
     // Passengers as linked list
-    LL_Node* passengers_head = NULL;
     for (int i = 0; i < passenger_count; i++) {
         passengers_head = insert_passenger(passengers_head, passengers[i]);
     }
     
     // Reservations as array
-    ReservationArray* reservations_array = init_reservations(reservation_count);
+    reservations_array = init_reservations(reservation_count);
     for (int i = 0; i < reservation_count; i++) {
         add_reservation(reservations_array, reservations[i]);
     }
@@ -75,7 +94,11 @@ void run_prototype1(Flight* flights, int flight_count, Passenger* passengers, in
     execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Prototype 1 - Structure Building Time: %f seconds\n", execution_time);
     
-    // Demo operations
+    // Select example IDs for demonstration
+    int passenger_id = 1;
+    int flight_id = 1;
+    
+    // Demo operations with timing
     printf("\nPrototype 1 - Sample Operations:\n");
     
     // 1. Print all flights (ordered)
@@ -91,9 +114,7 @@ void run_prototype1(Flight* flights, int flight_count, Passenger* passengers, in
     print_passengers(passengers_head);
     
     // 3. Find flights booked by a specific passenger
-    int passenger_id = 1; // Example passenger ID
     printf("\nFlights booked by Passenger ID %d:\n", passenger_id);
-    
     start = clock();
     print_passenger_flights(reservations_array, flights_root, passenger_id);
     end = clock();
@@ -101,9 +122,7 @@ void run_prototype1(Flight* flights, int flight_count, Passenger* passengers, in
     printf("\nTime to find flights by passenger: %f seconds\n", execution_time);
     
     // 4. Find passengers who booked a specific flight
-    int flight_id = 1; // Example flight ID
     printf("\nPassengers who booked Flight ID %d:\n", flight_id);
-    
     start = clock();
     print_flight_passengers(reservations_array, passengers_head, flight_id);
     end = clock();
@@ -127,20 +146,23 @@ void run_prototype2(Flight* flights, int flight_count, Passenger* passengers, in
     // Build data structures
     start = clock();
     
-    // Flights as AVL tree
     AVL_Node* flights_root = NULL;
+    PassengerHashTable* passengers_table = NULL;
+    ReservationBST* reservations_bst = NULL;
+    
+    // Flights as AVL tree
     for (int i = 0; i < flight_count; i++) {
         flights_root = avl_insert(flights_root, flights[i]);
     }
     
     // Passengers as hash table
-    PassengerHashTable* passengers_table = init_hash_table(passenger_count * 2); // Double size for less collisions
+    passengers_table = init_hash_table(passenger_count * 2); // Double size for less collisions
     for (int i = 0; i < passenger_count; i++) {
         hash_insert_passenger(passengers_table, passengers[i]);
     }
     
     // Reservations as BST
-    ReservationBST* reservations_bst = init_reservation_bst();
+    reservations_bst = init_reservation_bst();
     for (int i = 0; i < reservation_count; i++) {
         add_reservation_bst(reservations_bst, reservations[i]);
     }
@@ -149,7 +171,11 @@ void run_prototype2(Flight* flights, int flight_count, Passenger* passengers, in
     execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Prototype 2 - Structure Building Time: %f seconds\n", execution_time);
     
-    // Demo operations
+    // Select example IDs for demonstration
+    int passenger_id = 1;
+    int flight_id = 1;
+    
+    // Demo operations with timing
     printf("\nPrototype 2 - Sample Operations:\n");
     
     // 1. Print all flights (ordered)
@@ -165,9 +191,7 @@ void run_prototype2(Flight* flights, int flight_count, Passenger* passengers, in
     print_hash_passengers(passengers_table);
     
     // 3. Find flights booked by a specific passenger
-    int passenger_id = 1; // Example passenger ID
     printf("\nFlights booked by Passenger ID %d:\n", passenger_id);
-    
     start = clock();
     print_passenger_flights_bst(reservations_bst, flights_root, passenger_id);
     end = clock();
@@ -175,43 +199,17 @@ void run_prototype2(Flight* flights, int flight_count, Passenger* passengers, in
     printf("\nTime to find flights by passenger: %f seconds\n", execution_time);
     
     // 4. Find passengers who booked a specific flight
-    int flight_id = 1; // Example flight ID
     printf("\nPassengers who booked Flight ID %d:\n", flight_id);
-    
     start = clock();
     print_flight_passengers_bst(reservations_bst, passengers_table, flight_id);
     end = clock();
     execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("\nTime to find passengers by flight: %f seconds\n", execution_time);
     
-    // Performance stats
-    int flight_passenger_count = count_passengers_by_flight(reservations_bst, flight_id);
-    printf("\nNumber of passengers on flight %d: %d\n", flight_id, flight_passenger_count);
-    
-    int passenger_flight_count = count_flights_by_passenger(reservations_bst, passenger_id);
-    printf("Number of flights booked by passenger %d: %d\n", passenger_id, passenger_flight_count);
-    
     // Clean up
     free_avl_tree(flights_root);
     free_hash_table(passengers_table);
     free_reservation_bst(reservations_bst);
-}
-
-// Format timestamp for display
-char* format_timestamp_display(time_t timestamp) {
-    struct tm* tm_info = localtime(&timestamp);
-    static char buffer[26];
-    strftime(buffer, 26, "%Y-%m-%d %H:%M", tm_info);
-    return buffer;
-}
-
-// Helper function to check if data is loaded
-int check_data_loaded(int data_loaded) {
-    if (!data_loaded) {
-        printf("\nERROR: No data loaded. Please load data first (options 1 or 2).\n");
-        return 0;
-    }
-    return 1;
 }
 
 // Helper function to build data structures for both prototypes
@@ -264,20 +262,13 @@ void build_data_structures() {
         p2_flights_root = avl_insert(p2_flights_root, flights[i]);
     }
     
-    // Passengers as hash table - modified for better handling of large datasets
-    printf("Creating hash table for %d passengers...\n", passenger_count);
-    p2_passengers_table = init_hash_table(passenger_count);
-    if (p2_passengers_table == NULL) {
-        printf("Failed to create hash table. Using smaller buffer and batch insertion.\n");
-        
-        // Try with a smaller size and insert in batches
-        p2_passengers_table = init_hash_table(100000); // Try with a smaller initial size
-        if (p2_passengers_table == NULL) {
-            printf("Critical error: Cannot allocate memory for hash table\n");
-            return;
-        }
-        
-        // Insert in batches to reduce memory fragmentation
+    // Passengers as hash table
+    p2_passengers_table = init_hash_table(passenger_count * 2); // Double size for less collisions
+    if (!p2_passengers_table) {
+        p2_passengers_table = init_hash_table(100000); // Try with a smaller size if memory allocation fails
+    }
+    
+    if (p2_passengers_table) {
         const int BATCH_SIZE = 10000;
         for (int i = 0; i < passenger_count; i += BATCH_SIZE) {
             int end_idx = i + BATCH_SIZE;
@@ -286,44 +277,20 @@ void build_data_structures() {
             for (int j = i; j < end_idx; j++) {
                 hash_insert_passenger(p2_passengers_table, passengers[j]);
             }
-            printf("Inserted passenger batch %d-%d of %d\n", i, end_idx-1, passenger_count);
-        }
-    } else {
-        // Standard insertion
-        for (int i = 0; i < passenger_count; i++) {
-            hash_insert_passenger(p2_passengers_table, passengers[i]);
-            
-            // Print progress for large datasets
-            if (passenger_count > 10000 && i % 50000 == 0) {
-                printf("Inserted %d of %d passengers (%.1f%%)\n", 
-                       i, passenger_count, (i * 100.0) / passenger_count);
-            }
         }
     }
     
-    // Reservations as BST - modified for better handling of large datasets
-    printf("Creating reservation BST for %d reservations...\n", reservation_count);
+    // Reservations as BST
     p2_reservations_bst = init_reservation_bst();
-    if (p2_reservations_bst == NULL) {
-        printf("Failed to create reservation BST\n");
-        return;
-    }
-    
-    // Insert reservations in batches to reduce memory pressure
-    const int RES_BATCH_SIZE = 50000;
-    for (int i = 0; i < reservation_count; i += RES_BATCH_SIZE) {
-        int end_idx = i + RES_BATCH_SIZE;
-        if (end_idx > reservation_count) end_idx = reservation_count;
-        
-        for (int j = i; j < end_idx; j++) {
-            add_reservation_bst(p2_reservations_bst, reservations[j]);
-        }
-        
-        // Print progress for large datasets
-        if (reservation_count > 10000) {
-            printf("Inserted reservation batch %d-%d of %d (%.1f%%)\n", 
-                   i, end_idx-1, reservation_count, 
-                   (end_idx * 100.0) / reservation_count);
+    if (p2_reservations_bst) {
+        const int RES_BATCH_SIZE = 50000;
+        for (int i = 0; i < reservation_count; i += RES_BATCH_SIZE) {
+            int end_idx = i + RES_BATCH_SIZE;
+            if (end_idx > reservation_count) end_idx = reservation_count;
+            
+            for (int j = i; j < end_idx; j++) {
+                add_reservation_bst(p2_reservations_bst, reservations[j]);
+            }
         }
     }
     
@@ -405,25 +372,55 @@ void display_menu(int active_prototype) {
 // Function to search for a flight by ID
 Flight* search_flight_by_id(void* flights_root, int flight_id, int prototype) {
     if (prototype == 1) {
-        // Using BST
-        BST_Node* root = (BST_Node*)flights_root;
-        return find_flight(root, flight_id);
+        return find_flight((BST_Node*)flights_root, flight_id);
     } else {
-        // Using AVL
-        AVL_Node* root = (AVL_Node*)flights_root;
-        return avl_find_flight(root, flight_id);
+        return avl_find_flight((AVL_Node*)flights_root, flight_id);
     }
 }
 
 // Function to search for a passenger by ID
 Passenger* search_passenger_by_id(void* passengers_data, int passenger_id, int prototype) {
     if (prototype == 1) {
-        // Using Linked List
         return find_passenger((LL_Node*)passengers_data, passenger_id);
     } else {
-        // Using Hash Table
         return hash_find_passenger((PassengerHashTable*)passengers_data, passenger_id);
     }
+}
+
+// Helper function to display flight details
+void display_flight_details(Flight* flight) {
+    if (flight) {
+        printf("\nFlight Found:\n");
+        printf("ID: %d\n", flight->id);
+        printf("Flight Number: %s\n", flight->flightNumber);
+        printf("Origin: %s\n", flight->origin);
+        printf("Destination: %s\n", flight->destination);
+        printf("Departure Time: %s\n", format_timestamp_display(flight->departureTime));
+        printf("Capacity: %d\n", flight->capacity);
+    }
+}
+
+// Helper function to display passenger details
+void display_passenger_details(Passenger* passenger) {
+    if (passenger) {
+        printf("\nPassenger Found:\n");
+        printf("ID: %d\n", passenger->id);
+        printf("Name: %s\n", passenger->name);
+        printf("Passport Number: %s\n", passenger->passportNumber);
+    }
+}
+
+// Helper function to free all data structures and loaded data
+void cleanup_resources() {
+    if (flights) free(flights);
+    if (passengers) free(passengers);
+    if (reservations) free(reservations);
+    if (p1_flights_root) free_tree(p1_flights_root);
+    if (p1_passengers_head) free_list(p1_passengers_head);
+    if (p1_reservations_array) free_reservations(p1_reservations_array);
+    if (p2_flights_root) free_avl_tree(p2_flights_root);
+    if (p2_passengers_table) free_hash_table(p2_passengers_table);
+    if (p2_reservations_bst) free_reservation_bst(p2_reservations_bst);
 }
 
 // Main function
@@ -548,13 +545,8 @@ int main(int argc, char* argv[]) {
                 printf("\nGenerating %d flights, %d passengers, and approximately %d reservations...\n", 
                     dataset_size, dataset_size * 5, dataset_size * 10);
                 
-                // First generate flights to establish capacities
                 flights = generate_flights(dataset_size);
-                
-                // Then generate passengers
                 passengers = generate_passengers(dataset_size * 5);
-                
-                // Finally generate reservations respecting flight capacities
                 reservations = generate_reservations(dataset_size * 10, dataset_size, dataset_size * 5);
                 
                 flight_count = dataset_size;
@@ -607,17 +599,7 @@ int main(int argc, char* argv[]) {
                     flight = search_flight_by_id(p2_flights_root, id, 2);
                 }
                 
-                if (flight) {
-                    printf("\nFlight Found:\n");
-                    printf("ID: %d\n", flight->id);
-                    printf("Flight Number: %s\n", flight->flightNumber);
-                    printf("Origin: %s\n", flight->origin);
-                    printf("Destination: %s\n", flight->destination);
-                    printf("Departure Time: %s\n", format_timestamp_display(flight->departureTime));
-                    printf("Capacity: %d\n", flight->capacity);
-                } else {
-                    printf("\nFlight with ID %d not found!\n", id);
-                }
+                display_flight_details(flight);
                 break;
                 
             case 6: // Search for a flight by flight number
@@ -634,17 +616,7 @@ int main(int argc, char* argv[]) {
                     flight = avl_find_flight_by_number(p2_flights_root, search_term);
                 }
                 
-                if (flight) {
-                    printf("\nFlight Found:\n");
-                    printf("ID: %d\n", flight->id);
-                    printf("Flight Number: %s\n", flight->flightNumber);
-                    printf("Origin: %s\n", flight->origin);
-                    printf("Destination: %s\n", flight->destination);
-                    printf("Departure Time: %s\n", format_timestamp_display(flight->departureTime));
-                    printf("Capacity: %d\n", flight->capacity);
-                } else {
-                    printf("\nFlight with number %s not found!\n", search_term);
-                }
+                display_flight_details(flight);
                 break;
                 
             case 7: // Search for a passenger by ID
@@ -660,14 +632,7 @@ int main(int argc, char* argv[]) {
                     passenger = search_passenger_by_id(p2_passengers_table, id, 2);
                 }
                 
-                if (passenger) {
-                    printf("\nPassenger Found:\n");
-                    printf("ID: %d\n", passenger->id);
-                    printf("Name: %s\n", passenger->name);
-                    printf("Passport Number: %s\n", passenger->passportNumber);
-                } else {
-                    printf("\nPassenger with ID %d not found!\n", id);
-                }
+                display_passenger_details(passenger);
                 break;
                 
             case 8: // Search for a passenger by name
@@ -684,14 +649,7 @@ int main(int argc, char* argv[]) {
                     passenger = hash_find_passenger_by_name(p2_passengers_table, search_term);
                 }
                 
-                if (passenger) {
-                    printf("\nPassenger Found:\n");
-                    printf("ID: %d\n", passenger->id);
-                    printf("Name: %s\n", passenger->name);
-                    printf("Passport Number: %s\n", passenger->passportNumber);
-                } else {
-                    printf("\nNo passenger with name matching '%s' found!\n", search_term);
-                }
+                display_passenger_details(passenger);
                 break;
                 
             case 9: // Find flights booked by a specific passenger
@@ -760,15 +718,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Cleanup
-    if (flights) free(flights);
-    if (passengers) free(passengers);
-    if (reservations) free(reservations);
-    if (p1_flights_root) free_tree(p1_flights_root);
-    if (p1_passengers_head) free_list(p1_passengers_head);
-    if (p1_reservations_array) free_reservations(p1_reservations_array);
-    if (p2_flights_root) free_avl_tree(p2_flights_root);
-    if (p2_passengers_table) free_hash_table(p2_passengers_table);
-    if (p2_reservations_bst) free_reservation_bst(p2_reservations_bst);
+    cleanup_resources();
     
     printf("\n======================================\n");
     printf("Program completed successfully.\n");
