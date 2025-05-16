@@ -1,11 +1,10 @@
 ﻿#include <stdio.h>  
 #include <stdlib.h>  
-#define _CRT_SECURE_NO_WARNINGS
 #include "graph.h"  
 
 int main() {
     Graph G;
-    FILE* file = fopen("graph.txt", "r");
+    FILE* file = fopen("musae_git_edges.csv", "r");
 
     if (file == NULL) {
         printf("Error opening file! Ensure the file exists and the path is correct.\n");
@@ -173,8 +172,8 @@ void add_edge(Graph* self, int from, int to, int w) {
     // Allocate memory for new edge node
     EdgeNodePtr new_node = (EdgeNodePtr)malloc(sizeof(struct edgeNode));
     if (new_node == NULL) {
-        // Just report the error but don't exit - allow program to continue
-        printf("Memory allocation failed for new edge (%d→%d)!\n", from, to);
+        // Just report the error but don't exit, allow program to continue
+        printf("Memory allocation failed for new edge (%d->%d)!\n", from, to);
         return;
     }
 
