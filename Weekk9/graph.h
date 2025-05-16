@@ -17,3 +17,5 @@ typedef struct graph {
 	int V;
 	EdgeList* edges;
 } Graph;
+
+void add_edge(Graph* self, int from, int to, int w);

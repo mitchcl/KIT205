@@ -1,6 +1,6 @@
 #include <stdio.h>  
 #include <stdlib.h>  
-
+#define _CRT_SECURE_NO_WARNINGS
 #include "graph.h"  
 
 int main() {  
@@ -12,7 +12,7 @@ int main() {
         return;
     }
 
-    fscanf(file, "%d", &G.V);
+    fscanf_s(file, "%d", &G.V);
 
     G.edges = (EdgeList*)malloc(G.V * sizeof(EdgeList));
     if (G.edges == NULL) {
@@ -26,13 +26,44 @@ int main() {
     }
 
     int from, to, weight;
-    while (fscanf(file, "%d,%d,%d", &from, &to, &weight) == 3) {
+    while (fscanf_s(file, "%d,%d,%d", &from, &to, &weight) == 3) {
         add_edge(&G, from, to, weight);
     }
 
     fclose(file);
 
     printf("Graph loaded successfully with %d vertices.\n", G.V);
+
+    int* in_degrees = (int*)calloc(G.V, sizeof(int));
+    if (in_degrees == NULL) {
+            printf("Memory allocation failed for in-degrees array!\n");
+
+        for (int v = 0; v < G.V; v++) {
+            EdgeNodePtr current = G.edges[v].head;
+            while (current != NULL) {
+                EdgeNodePtr next = current->next;
+                free(current);
+                current = next;
+            }
+        }
+        free(G.edges);
+        return 1;
+    }
+
+    for (int v = 0; v < G.V; v++) {
+        EdgeNodePtr current = G.edges[v].head;
+        while (current != NULL) {
+            int to_vertex = current->edge.to_vertex;
+            in_degrees[to_vertex]++;
+            current = current->next;
+    }
+}
+    printf("Vertex In-Degrees:\n");
+    for (int v = 0; v < G.V; v++) {
+        printf("Vertex %d: %d\n", v, in_degrees[v]);
+    }
+
+    free(in_degrees);
 
     for (int v = 0; v < G.V; v++) {
         EdgeNodePtr current = G.edges[v].head;
