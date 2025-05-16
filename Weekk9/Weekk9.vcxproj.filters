@@ -25,6 +25,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="graph.txt" />
+    <None Include="musae_git_edges.csv">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="graph.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
