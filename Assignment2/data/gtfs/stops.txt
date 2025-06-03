@@ -1,0 +1,9 @@
+stop_id,name,latitude,longitude,suburb
+1,Hobart Bus Interchange,-42.8826,147.3257,Hobart
+2,Elizabeth St Mall,-42.8821,147.3258,Hobart
+3,UTAS Sandy Bay Campus,-42.9019,147.3247,Sandy Bay
+4,Glenorchy Interchange,-42.8290,147.2733,Glenorchy
+5,Moonah Main Rd,-42.8583,147.2833,Moonah
+6,Kingston Plaza,-42.9751,147.3067,Kingston
+7,Rosny Park,-42.8775,147.3822,Rosny Park
+8,Royal Hobart Hospital,-42.8799,147.3131,Hobart
