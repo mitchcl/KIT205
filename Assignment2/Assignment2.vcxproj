@@ -25,6 +25,11 @@
     <Text Include="data\gtfs\routes.txt" />
     <Text Include="data\gtfs\stops.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gtfs_parser.c" />
+    <ClCompile Include="main_transport.c" />
+    <ClCompile Include="transport_graph.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

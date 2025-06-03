@@ -34,8 +34,7 @@ TransportGraph* create_transport_graph(int initial_capacity) {
     return graph;
 }
 
-int add_bus_stop(TransportGraph* graph, int stop_id, const char* name, 
-                 double lat, double lon, const char* suburb) {
+int add_bus_stop(TransportGraph* graph, int stop_id, const char* name, double lat, double lon, const char* suburb) {
     if (!graph || !name || !suburb) {
         return -1;
     }
@@ -47,25 +46,22 @@ int add_bus_stop(TransportGraph* graph, int stop_id, const char* name,
     
     // Resize if necessary
     if (graph->num_stops >= graph->capacity) {
-
         return -1;
     }
     
     BusStop* stop = &graph->stops[graph->num_stops];
-    stop->stop_id = stop_id;
-    strncpy(stop->name, name, MAX_NAME_LENGTH - 1);
+    strncpy_s(stop->name, MAX_NAME_LENGTH, name, MAX_NAME_LENGTH - 1);
     stop->name[MAX_NAME_LENGTH - 1] = '\0';
     stop->latitude = lat;
     stop->longitude = lon;
-    strncpy(stop->suburb, suburb, MAX_SUBURB_LENGTH - 1);
+    strncpy_s(stop->suburb, MAX_SUBURB_LENGTH, suburb, MAX_SUBURB_LENGTH - 1);
     stop->suburb[MAX_SUBURB_LENGTH - 1] = '\0';
     
     graph->num_stops++;
     return graph->num_stops - 1; // Return index
 }
 
-int add_connection(TransportGraph* graph, int from_stop, int to_stop, 
-                   int route_id, int travel_time) {
+int add_connection(TransportGraph* graph, int from_stop, int to_stop, int route_id, int travel_time) {
     if (!graph) return -1;
     
     int from_index = find_stop_index(graph, from_stop);
