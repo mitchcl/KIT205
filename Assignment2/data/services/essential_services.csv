@@ -1,0 +1,5 @@
+service_id,name,stop_id,service_type,importance_weight
+1,Royal Hobart Hospital,8,Healthcare,0.4
+2,UTAS Sandy Bay Campus,3,Education,0.3
+3,Eastlands Shopping Centre,7,Shopping,0.2
+4,Glenorchy Civic Centre,4,Government,0.1
