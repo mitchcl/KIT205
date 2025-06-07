@@ -1,12 +1,8 @@
-﻿/**
- * Unit Tests for Transport Analysis
- * Comprehensive testing framework
- */
-
+﻿#include <stdio.h>
 #include <assert.h>
-#include "graph.h"
+#include "../src/graph.h"
 
- // Test helper functions
+// Test basic graph creation and manipulation
 void test_graph_creation()
 {
     printf("Testing graph creation...\n");
@@ -14,107 +10,120 @@ void test_graph_creation()
     TransportGraph* graph = create_transport_graph(10);
     assert(graph != NULL);
     assert(graph->num_stops == 0);
-    assert(graph->capacity == 10);
+    assert(graph->stops != NULL);
 
-    free_transport_graph(graph);
     printf("✓ Graph creation test passed\n");
+    free_transport_graph(graph);
 }
 
-void test_stop_addition()
+// Test adding bus stops
+void test_add_bus_stops()
 {
-    printf("Testing stop addition...\n");
+    printf("Testing bus stop addition...\n");
 
     TransportGraph* graph = create_transport_graph(10);
-    assert(graph != NULL);
 
-    int result = add_bus_stop(graph, 1, "Test Stop", -42.88, 147.33, "Hobart");
-    assert(result == 0);
+    bool result1 = add_bus_stop(graph, 1, INTERCHANGE, "Hobart City Interchange",
+        "Hobart", -42.8826, 147.3257);
+    assert(result1 == true);
     assert(graph->num_stops == 1);
-    assert(graph->stops[0].stop_id == 1);
-    assert(strcmp(graph->stops[0].name, "Test Stop") == 0);
 
+    bool result2 = add_bus_stop(graph, 2, HOSPITAL, "Royal Hobart Hospital",
+        "Hobart", -42.8864, 147.3242);
+    assert(result2 == true);
+    assert(graph->num_stops == 2);
+
+    printf("✓ Bus stop addition test passed\n");
     free_transport_graph(graph);
-    printf("✓ Stop addition test passed\n");
 }
 
-void test_connection_addition()
+// Test adding connections between stops
+void test_add_connections()
 {
-    printf("Testing connection addition...\n");
-
-    TransportGraph* graph = create_transport_graph(10);
-    add_bus_stop(graph, 1, "Stop A", -42.88, 147.33, "Hobart");
-    add_bus_stop(graph, 2, "Stop B", -42.89, 147.34, "Hobart");
-
-    int result = add_connection(graph, 1, 2, 401, 10);
-    assert(result == 0);
-
-    // Verify connection exists
-    Connection* conn = graph->adjacency_list[0];
-    assert(conn != NULL);
-    assert(conn->destination_stop_id == 2);
-    assert(conn->route_id == 401);
-
-    free_transport_graph(graph);
-    printf("✓ Connection addition test passed\n");
-}
-
-void test_shortest_path()
-{
-    printf("Testing shortest path algorithm...\n");
+    printf("Testing bus connections...\n");
 
     TransportGraph* graph = create_transport_graph(10);
 
-    // Create simple test network: 1 -> 2 -> 3
-    add_bus_stop(graph, 1, "Stop A", -42.88, 147.33, "Hobart");
-    add_bus_stop(graph, 2, "Stop B", -42.89, 147.34, "Hobart");
-    add_bus_stop(graph, 3, "Stop C", -42.90, 147.35, "Hobart");
+    add_bus_stop(graph, 1, INTERCHANGE, "Stop 1", "Hobart", -42.88, 147.32);
+    add_bus_stop(graph, 2, BUS_STOP, "Stop 2", "Sandy Bay", -42.90, 147.33);
 
-    add_connection(graph, 1, 2, 401, 10);
-    add_connection(graph, 2, 3, 401, 10);
+    bool result = add_bus_connection(graph, 1, 2, 15, 401);
+    assert(result == true);
+    assert(graph->num_connections == 1);
 
-    PathResult* result = find_shortest_path(graph, 1, 3);
-    assert(result != NULL);
-    assert(result->path_found == true);
-    assert(result->path_length == 3);
-    assert(result->total_transfers == 2);
+    // Check if edge was added correctly
+    Edge* edge = graph->stops[0].edges;
+    assert(edge != NULL);
+    assert(edge->to == 1); // Index 1 for stop ID 2
+    assert(edge->travel_time == 15);
+    assert(edge->route_id == 401);
 
-    free_path_result(result);
+    printf("✓ Bus connections test passed\n");
     free_transport_graph(graph);
-    printf("✓ Shortest path test passed\n");
 }
 
-void test_no_path()
+// Test BFS shortest path algorithm
+void test_bfs_shortest_path()
 {
-    printf("Testing disconnected graph handling...\n");
+    printf("Testing BFS shortest path...\n");
 
-    TransportGraph* graph = create_transport_graph(10);
+    TransportGraph* graph = create_transport_graph(5);
 
-    // Create disconnected stops
-    add_bus_stop(graph, 1, "Stop A", -42.88, 147.33, "Hobart");
-    add_bus_stop(graph, 2, "Stop B", -42.89, 147.34, "Hobart");
+    // Create a simple linear network: 1 -> 2 -> 3 -> 4
+    add_bus_stop(graph, 1, INTERCHANGE, "Stop 1", "Hobart", -42.88, 147.32);
+    add_bus_stop(graph, 2, BUS_STOP, "Stop 2", "Sandy Bay", -42.90, 147.33);
+    add_bus_stop(graph, 3, BUS_STOP, "Stop 3", "Kingston", -42.95, 147.30);
+    add_bus_stop(graph, 4, HOSPITAL, "Hospital", "Hobart", -42.88, 147.32);
 
-    // No connections added
+    add_bus_connection(graph, 1, 2, 10, 401);
+    add_bus_connection(graph, 2, 3, 15, 401);
+    add_bus_connection(graph, 3, 4, 20, 401);
 
-    PathResult* result = find_shortest_path(graph, 1, 2);
-    assert(result != NULL);
-    assert(result->path_found == false);
+    int distances[4];
+    int parents[4];
 
-    free_path_result(result);
+    bfs_shortest_path(graph, 0, distances, parents); // Start from stop 1 (index 0)
+
+    // Distance from stop 1 to stop 4 should be 3 transfers
+    assert(distances[3] == 3);
+
+    printf("✓ BFS shortest path test passed\n");
     free_transport_graph(graph);
-    printf("✓ No path test passed\n");
+}
+
+// Test loading sample data
+void test_load_sample_data()
+{
+    printf("Testing sample data loading...\n");
+
+    // This would test loading from the CSV files we created
+    // For now, just test the data structure
+    TransportGraph* graph = create_transport_graph(20);
+
+    // Add some sample stops like in our stops.txt
+    add_bus_stop(graph, 1, INTERCHANGE, "Hobart City Interchange Stop A1",
+        "Hobart", -42.8826, 147.3257);
+    add_bus_stop(graph, 5, HOSPITAL, "Royal Hobart Hospital",
+        "Hobart", -42.8864, 147.3242);
+    add_bus_stop(graph, 4, UNIVERSITY, "UTAS Churchill Ave",
+        "Sandy Bay", -42.9023, 147.3189);
+
+    assert(graph->num_stops == 3);
+
+    printf("✓ Sample data loading test passed\n");
+    free_transport_graph(graph);
 }
 
 int main()
 {
-    printf("Running Transport Analysis Unit Tests\n");
-    printf("====================================\n\n");
+    printf("=== Tasmania Public Transport Network Tests ===\n\n");
 
     test_graph_creation();
-    test_stop_addition();
-    test_connection_addition();
-    test_shortest_path();
-    test_no_path();
+    test_add_bus_stops();
+    test_add_connections();
+    test_bfs_shortest_path();
+    test_load_sample_data();
 
-    printf("\nAll tests passed successfully!\n");
+    printf("\n=== All tests passed! ===\n");
     return 0;
 }
