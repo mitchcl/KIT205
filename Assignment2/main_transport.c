@@ -1,143 +1,51 @@
-/**
- * Main Transport Analysis Program
- */
+﻿#include "graph.h"
 
-#include "graph.h"
-#include <getopt.h>
-
-void print_usage()
+// Demonstrate the Tasmania public transport analysis system
+void demonstrate_transport_analysis()
 {
-    printf("Tasmania Transport Analysis Tool\n");
-    printf("Usage: transport_analysis [OPTIONS]\n");
-    printf("Options:\n");
-    printf("  -h, --help           Show this help message\n");
-    printf("  -d, --data DIR       Specify GTFS data directory\n");
-    printf("  -s, --services FILE  Specify essential services file\n");
-    printf("  -o, --output DIR     Specify output directory\n");
-    printf("  -m, --mode MODE      Analysis mode (basic|accessibility|critical)\n");
-    printf("  -v, --verbose        Enable verbose output\n");
+    printf("=== Tasmania Public Transport Accessibility Analysis ===\n\n");
+
+    // Create transport network graph
+    TransportGraph* graph = create_transport_graph(20);
+
+    // Add key bus stops from our sample data
+    add_bus_stop(graph, 1, INTERCHANGE, "Hobart City Interchange Stop A1", "Hobart", -42.8826, 147.3257);
+    add_bus_stop(graph, 5, HOSPITAL, "Royal Hobart Hospital", "Hobart", -42.8864, 147.3242);
+    add_bus_stop(graph, 4, UNIVERSITY, "UTAS Churchill Ave", "Sandy Bay", -42.9023, 147.3189);
+    add_bus_stop(graph, 7, SHOPPING, "Eastlands Shopping Centre", "Rosny Park", -42.8742, 147.3578);
+    add_bus_stop(graph, 6, INTERCHANGE, "Glenorchy Interchange Stop H", "Glenorchy", -42.8355, 147.2763);
+    add_bus_stop(graph, 3, BUS_STOP, "Sandy Bay Rd Stop 625", "Sandy Bay", -42.9089, 147.3312);
+    add_bus_stop(graph, 8, BUS_STOP, "Kingston Central", "Kingston", -42.9789, 147.3065);
+    add_bus_stop(graph, 9, SHOPPING, "Northgate Shopping Centre", "Glenorchy", -42.8226, 147.2741);
+
+    printf("✓ Added %d bus stops\n", graph->num_stops);
+
+    // Add bus connections based on actual Metro Tasmania routes
+    add_bus_connection(graph, 1, 5, 5, 429);  // City to Hospital (Route 429)
+    add_bus_connection(graph, 1, 3, 8, 401);  // City to Sandy Bay (Route 401)
+    add_bus_connection(graph, 3, 4, 5, 401);  // Sandy Bay to UTAS (Route 401)
+    add_bus_connection(graph, 1, 7, 20, 446); // City to Eastlands (Route 446)
+    add_bus_connection(graph, 6, 4, 18, 501); // Glenorchy to UTAS (Route 501)
+    add_bus_connection(graph, 6, 1, 15, 500); // Glenorchy to City (Route 500)
+    add_bus_connection(graph, 1, 8, 30, 410); // City to Kingston (Route 410)
+    add_bus_connection(graph, 6, 9, 5, 500);  // Glenorchy to Northgate (Route 500)
+
+    printf("✓ Added %d bus connections\n\n", graph->num_connections);
+
+    // Display the network
+    print_transport_graph(graph);
+
+    // Perform dynamic analysis based on network characteristics
+    analyse_diverse_locations(graph);
+
+    free_transport_graph(graph);
 }
 
-int main(int argc, char* argv[])
+int main()
 {
-    printf("Tasmania Public Transport Accessibility Analysis\n");
-    printf("===============================================\n\n");
+    demonstrate_transport_analysis();
 
-    // Default parameters
-    char* data_dir = "data/gtfs/";
-    char* services_file = "data/services/essential_services.csv";
-    char* output_dir = "data/results/";
-    char* mode = "basic";
-    bool verbose = false;
+    printf("Analysis complete!\n\n");
 
-    // Parse command line arguments
-    int opt;
-    static struct option long_options[] = {
-        {"help", no_argument, 0, 'h'},
-        {"data", required_argument, 0, 'd'},
-        {"services", required_argument, 0, 's'},
-        {"output", required_argument, 0, 'o'},
-        {"mode", required_argument, 0, 'm'},
-        {"verbose", no_argument, 0, 'v'},
-        {0, 0, 0, 0} };
-
-    while ((opt = getopt_long(argc, argv, "hd:s:o:m:v", long_options, NULL)) != -1)
-    {
-        switch (opt)
-        {
-        case 'h':
-            print_usage();
-            return 0;
-        case 'd':
-            data_dir = optarg;
-            break;
-        case 's':
-            services_file = optarg;
-            break;
-        case 'o':
-            output_dir = optarg;
-            break;
-        case 'm':
-            mode = optarg;
-            break;
-        case 'v':
-            verbose = true;
-            break;
-        default:
-            print_usage();
-            return 1;
-        }
-    }
-
-    // Create transport graph
-    if (verbose)
-        printf("Creating transport graph...\n");
-    TransportGraph* graph = create_transport_graph(3000);
-    if (!graph)
-    {
-        fprintf(stderr, "Failed to create transport graph\n");
-        return 1;
-    }
-
-    // Load GTFS data
-    if (verbose)
-        printf("Loading GTFS data from %s...\n", data_dir);
-    char stops_file[256];
-    snprintf(stops_file, sizeof(stops_file), "%s/stops.txt", data_dir);
-
-    int stops_loaded = load_stops_from_file(graph, stops_file);
-    if (stops_loaded <= 0)
-    {
-        fprintf(stderr, "Failed to load stops data\n");
-        free_transport_graph(graph);
-        return 1;
-    }
-
-    // Load essential services
-    if (verbose)
-        printf("Loading essential services...\n");
-    load_services_from_file(graph, services_file);
-
-    // Perform analysis based on mode
-    if (strcmp(mode, "basic") == 0)
-    {
-        printf("=== BASIC NETWORK ANALYSIS ===\n");
-        print_graph_stats(graph);
-    }
-    else if (strcmp(mode, "accessibility") == 0)
-    {
-        printf("=== ACCESSIBILITY ANALYSIS ===\n");
-        analyze_network_accessibility(graph);
-    }
-    else if (strcmp(mode, "critical") == 0)
-    {
-        printf("=== CRITICAL INFRASTRUCTURE ANALYSIS ===\n");
-        int num_critical;
-        int* critical_stops = find_critical_stops(graph, &num_critical);
-
-        printf("Found %d critical stops:\n", num_critical);
-        for (int i = 0; i < num_critical; i++)
-        {
-            int stop_index = find_stop_index(graph, critical_stops[i]);
-            if (stop_index != -1)
-            {
-                printf("- %s (Stop ID: %d)\n",
-                    graph->stops[stop_index].name, critical_stops[i]);
-            }
-        }
-        free(critical_stops);
-    }
-    else
-    {
-        fprintf(stderr, "Unknown analysis mode: %s\n", mode);
-        print_usage();
-        free_transport_graph(graph);
-        return 1;
-    }
-
-    // Clean up
-    free_transport_graph(graph);
-
-    printf("\nAnalysis completed successfully.\n");
     return 0;
 }
