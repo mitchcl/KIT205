@@ -1,268 +1,304 @@
-/**
- * Network Analysis Implementation
- * BFS shortest path algorithm for transport networks
- */
-
 #include "graph.h"
+#include <time.h>
 
-typedef struct QueueNode
+// Enhanced network analysis functions
+
+// analyse service frequency distribution
+ServiceFrequencyAnalysis analyse_service_frequency(TransportGraph* graph)
 {
-    int stop_index;
-    struct QueueNode* next;
-} QueueNode;
+    ServiceFrequencyAnalysis analysis = { 0 };
+    int max_connections = 0;
+    int max_stop_index = -1;
+    int total_connections = 0;
 
-typedef struct
-{
-    QueueNode* front;
-    QueueNode* rear;
-} Queue;
+    // Initialize isolated stop names string
+    analysis.isolated_stop_names[0] = '\0';
 
-// Queue operations for BFS
-Queue* create_queue()
-{
-    Queue* q = malloc(sizeof(Queue));
-    if (q)
-    {
-        q->front = q->rear = NULL;
-    }
-    return q;
-}
-
-void enqueue(Queue* q, int stop_index)
-{
-    QueueNode* new_node = malloc(sizeof(QueueNode));
-    if (!new_node || !q)
-        return;
-
-    new_node->stop_index = stop_index;
-    new_node->next = NULL;
-
-    if (q->rear == NULL)
-    {
-        q->front = q->rear = new_node;
-    }
-    else
-    {
-        q->rear->next = new_node;
-        q->rear = new_node;
-    }
-}
-
-int dequeue(Queue* q)
-{
-    if (!q || q->front == NULL)
-        return -1;
-
-    QueueNode* temp = q->front;
-    int stop_index = temp->stop_index;
-
-    q->front = q->front->next;
-    if (q->front == NULL)
-    {
-        q->rear = NULL;
-    }
-
-    free(temp);
-    return stop_index;
-}
-
-bool is_queue_empty(Queue* q)
-{
-    return (q == NULL || q->front == NULL);
-}
-
-void free_queue(Queue* q)
-{
-    if (!q)
-        return;
-
-    while (!is_queue_empty(q))
-    {
-        dequeue(q);
-    }
-    free(q);
-}
-
-/**
- * BFS shortest path algorithm
- * Returns PathResult with shortest path between start and end stops
- */
-PathResult* find_shortest_path(TransportGraph* graph, int start_stop, int end_stop)
-{
-    if (!graph)
-        return NULL;
-
-    PathResult* result = malloc(sizeof(PathResult));
-    if (!result)
-        return NULL;
-
-    // Initialise result structure
-    result->path = NULL;
-    result->path_length = 0;
-    result->total_transfers = 0;
-    result->total_time = 0;
-    result->path_found = false;
-
-    int start_index = find_stop_index(graph, start_stop);
-    int end_index = find_stop_index(graph, end_stop);
-
-    if (start_index == -1 || end_index == -1)
-    {
-        return result; // Stops not found
-    }
-
-    if (start_index == end_index)
-    {
-        // Same stop - create trivial path
-        result->path = malloc(sizeof(int));
-        result->path[0] = start_stop;
-        result->path_length = 1;
-        result->path_found = true;
-        return result;
-    }
-
-    // BFS data structures
-    bool* visited = calloc(graph->num_stops, sizeof(bool));
-    int* parent = malloc(sizeof(int) * graph->num_stops);
-    int* distance = malloc(sizeof(int) * graph->num_stops);
-
-    if (!visited || !parent || !distance)
-    {
-        free(visited);
-        free(parent);
-        free(distance);
-        return result;
-    }
-
-    // Initialize BFS arrays
     for (int i = 0; i < graph->num_stops; i++)
     {
-        parent[i] = -1;
-        distance[i] = -1;
-    }
-
-    Queue* q = create_queue();
-    if (!q)
-    {
-        free(visited);
-        free(parent);
-        free(distance);
-        return result;
-    }
-
-    // Start BFS
-    visited[start_index] = true;
-    distance[start_index] = 0;
-    enqueue(q, start_index);
-
-    while (!is_queue_empty(q))
-    {
-        int current_index = dequeue(q);
-
-        if (current_index == end_index)
+        // Count connections for this stop
+        int connections = 0;
+        Edge* edge = graph->stops[i].edges;
+        while (edge)
         {
-            result->path_found = true;
-            break;
+            connections++;
+            edge = edge->next;
         }
 
-        // Explore all connections from current stop
-        Connection* conn = graph->adjacency_list[current_index];
-        while (conn)
-        {
-            int next_stop_index = find_stop_index(graph, conn->destination_stop_id);
+        total_connections += connections;
 
-            if (next_stop_index != -1 && !visited[next_stop_index])
+        if (connections > max_connections)
+        {
+            max_connections = connections;
+            max_stop_index = i;
+        }
+
+        if (connections == 0)
+        {
+            analysis.isolated_stops++;
+            // Add this stop's name to the isolated stops list
+            if (strlen(analysis.isolated_stop_names) > 0)
             {
-                visited[next_stop_index] = true;
-                parent[next_stop_index] = current_index;
-                distance[next_stop_index] = distance[current_index] + 1;
-                enqueue(q, next_stop_index);
+                strncat(analysis.isolated_stop_names, "; ", 498 - strlen(analysis.isolated_stop_names));
             }
-
-            conn = conn->next;
+            strncat(analysis.isolated_stop_names, graph->stops[i].name, 498 - strlen(analysis.isolated_stop_names));
+        }
+        else if (connections <= 4)
+        {
+            analysis.low_frequency_stops++;
+        }
+        else if (connections <= 10)
+        {
+            analysis.medium_frequency_stops++;
+        }
+        else
+        {
+            analysis.high_frequency_stops++;
         }
     }
 
-    // Reconstruct path if found
-    if (result->path_found)
+    analysis.avg_connections_per_stop = (double)total_connections / graph->num_stops;
+    analysis.max_connections = max_connections;
+
+    if (max_stop_index >= 0)
     {
-        // Count path length
-        int length = 0;
-        int current = end_index;
-        while (current != -1)
-        {
-            length++;
-            current = parent[current];
-        }
-
-        // Allocate and fill path array
-        result->path = malloc(sizeof(int) * length);
-        result->path_length = length;
-
-        if (result->path)
-        {
-            current = end_index;
-            for (int i = length - 1; i >= 0; i--)
-            {
-                result->path[i] = graph->stops[current].stop_id;
-                current = parent[current];
-            }
-
-            result->total_transfers = length - 1; // Number of connections
-        }
+        strncpy(analysis.busiest_stop, graph->stops[max_stop_index].name, 99);
+        analysis.busiest_stop[99] = '\0';
     }
 
-    // Cleanup
-    free_queue(q);
-    free(visited);
-    free(parent);
-    free(distance);
-
-    return result;
+    return analysis;
 }
 
-/**
- * Free PathResult structure
- */
-void free_path_result(PathResult* result)
+// Calculate cumulative opportunities from a specific stop
+CumulativeOpportunities calculate_cumulative_opportunities(TransportGraph* graph, int start_stop)
 {
-    if (!result)
-        return;
+    CumulativeOpportunities opportunities = { 0 };
 
-    free(result->path);
-    free(result);
-}
-
-/**
- * Print path information
- */
-void print_path(TransportGraph* graph, PathResult* result)
-{
-    if (!result || !graph)
-        return;
-
-    if (!result->path_found)
+    if (start_stop < 0 || start_stop >= graph->num_stops)
     {
-        printf("No path found between specified stops.\n");
-        return;
+        return opportunities;
     }
 
-    printf("Shortest path found:\n");
-    printf("Path length: %d stops\n", result->path_length);
-    printf("Total transfers: %d\n", result->total_transfers);
-
-    printf("Route: ");
-    for (int i = 0; i < result->path_length; i++)
+    int* distances = malloc(graph->num_stops * sizeof(int));
+    int* parents = malloc(graph->num_stops * sizeof(int));
+    if (!distances || !parents)
     {
-        int stop_index = find_stop_index(graph, result->path[i]);
-        if (stop_index != -1)
+        free(distances);
+        free(parents);
+        return opportunities;
+    }
+
+    bfs_shortest_path(graph, start_stop, distances, parents);
+
+    for (int i = 0; i < graph->num_stops; i++)
+    {
+        if (distances[i] != -1)
         {
-            printf("%s", graph->stops[stop_index].name);
-            if (i < result->path_length - 1)
-            {
-                printf(" -> ");
-            }
+            opportunities.total_reachable++;
+            if (distances[i] <= 1)
+                opportunities.within_1_transfer++;
+            if (distances[i] <= 2)
+                opportunities.within_2_transfers++;
+            if (distances[i] <= 3)
+                opportunities.within_3_transfers++;
+            if (distances[i] <= 5)
+                opportunities.within_5_transfers++;
         }
     }
-    printf("\n");
+
+    free(distances);
+    free(parents);
+    return opportunities;
+}
+
+// Calculate basic network metrics
+NetworkMetrics calculate_network_metrics(TransportGraph* graph)
+{
+    NetworkMetrics metrics = { 0 };
+    int total_paths = 0;
+    int total_distance = 0;
+    int max_distance = 0;
+
+    printf("Calculating network metrics (this may take a moment)...\n");
+
+    // Sample analysis from key hubs to avoid O(n²) complexity
+    int sample_size = (graph->num_stops > 100) ? 50 : graph->num_stops;
+    int step = graph->num_stops / sample_size;
+    if (step < 1)
+        step = 1;
+
+    for (int i = 0; i < graph->num_stops; i += step)
+    {
+        int* distances = malloc(graph->num_stops * sizeof(int));
+        int* parents = malloc(graph->num_stops * sizeof(int));
+        if (!distances || !parents)
+        {
+            free(distances);
+            free(parents);
+            continue;
+        }
+
+        bfs_shortest_path(graph, i, distances, parents);
+
+        for (int j = 0; j < graph->num_stops; j++)
+        {
+            if (distances[j] != -1 && i != j)
+            {
+                total_paths++;
+                total_distance += distances[j];
+                if (distances[j] > max_distance)
+                {
+                    max_distance = distances[j];
+                }
+            }
+        }
+
+        free(distances);
+        free(parents);
+    }
+
+    if (total_paths > 0)
+    {
+        metrics.avg_shortest_path = (double)total_distance / total_paths;
+        metrics.network_efficiency = 1.0 / metrics.avg_shortest_path;
+        metrics.total_reachable_pairs = total_paths;
+    }
+
+    metrics.diameter = max_distance;
+
+    return metrics;
+}
+
+// Generate a comprehensive network report
+void generate_network_report(TransportGraph* graph, const char* output_file)
+{
+    FILE* report = fopen(output_file, "w");
+    if (!report)
+    {
+        printf("Warning: Could not create network report file\n");
+        return;
+    }
+
+    time_t now = time(NULL);
+    char* date_str = ctime(&now);
+
+    fprintf(report, "=======================================================\n");
+    fprintf(report, "TASMANIA TRANSPORT NETWORK ANALYSIS REPORT\n");
+    fprintf(report, "Generated: %s", date_str);
+    fprintf(report, "=======================================================\n\n");
+
+    // Basic network statistics
+    fprintf(report, "NETWORK OVERVIEW\n");
+    fprintf(report, "----------------\n");
+    fprintf(report, "Total bus stops: %d\n", graph->num_stops);
+    fprintf(report, "Total connections: %d\n", graph->num_connections);
+    fprintf(report, "Network density: %.3f%%\n",
+        (double)(graph->num_connections * 100) / (graph->num_stops * graph->num_stops));
+    fprintf(report, "\n");
+
+    // Service frequency analysis
+    ServiceFrequencyAnalysis freq_analysis = analyse_service_frequency(graph);
+    fprintf(report, "SERVICE FREQUENCY ANALYSIS\n");
+    fprintf(report, "-------------------------\n");
+    fprintf(report, "High frequency stops (>10 connections): %d\n", freq_analysis.high_frequency_stops);
+    fprintf(report, "Medium frequency stops (5-10 connections): %d\n", freq_analysis.medium_frequency_stops);
+    fprintf(report, "Low frequency stops (1-4 connections): %d\n", freq_analysis.low_frequency_stops);
+    fprintf(report, "Isolated stops (0 connections): %d\n", freq_analysis.isolated_stops);
+    fprintf(report, "Average connections per stop: %.2f\n", freq_analysis.avg_connections_per_stop);
+    fprintf(report, "Busiest stop: %s (%d connections)\n",
+        freq_analysis.busiest_stop, freq_analysis.max_connections);
+    fprintf(report, "\n");
+
+    // Find key interchanges for accessibility analysis
+    int interchange_indices[3] = { -1, -1, -1 };
+    for (int i = 0; i < graph->num_stops && interchange_indices[2] == -1; i++)
+    {
+        // Count connections for this stop
+        int connections = 0;
+        Edge* edge = graph->stops[i].edges;
+        while (edge)
+        {
+            connections++;
+            edge = edge->next;
+        }
+
+        if (strstr(graph->stops[i].name, "Interchange") ||
+            strstr(graph->stops[i].name, "interchange") ||
+            connections > 20)
+        {
+            if (interchange_indices[0] == -1)
+                interchange_indices[0] = i;
+            else if (interchange_indices[1] == -1)
+                interchange_indices[1] = i;
+            else
+                interchange_indices[2] = i;
+        }
+    }
+
+    // Accessibility analysis from key locations
+    fprintf(report, "ACCESSIBILITY ANALYSIS\n");
+    fprintf(report, "---------------------\n");
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (interchange_indices[i] != -1)
+        {
+            CumulativeOpportunities opp = calculate_cumulative_opportunities(graph, interchange_indices[i]);
+            fprintf(report, "From %s:\n", graph->stops[interchange_indices[i]].name);
+            fprintf(report, "  Reachable within 1 transfer: %d stops (%.1f%%)\n",
+                opp.within_1_transfer, (double)opp.within_1_transfer * 100 / graph->num_stops);
+            fprintf(report, "  Reachable within 2 transfers: %d stops (%.1f%%)\n",
+                opp.within_2_transfers, (double)opp.within_2_transfers * 100 / graph->num_stops);
+            fprintf(report, "  Reachable within 3 transfers: %d stops (%.1f%%)\n",
+                opp.within_3_transfers, (double)opp.within_3_transfers * 100 / graph->num_stops);
+            fprintf(report, "  Total reachable: %d stops (%.1f%%)\n",
+                opp.total_reachable, (double)opp.total_reachable * 100 / graph->num_stops);
+            fprintf(report, "\n");
+        }
+    }
+
+    // Network efficiency metrics
+    NetworkMetrics metrics = calculate_network_metrics(graph);
+    fprintf(report, "NETWORK EFFICIENCY METRICS\n");
+    fprintf(report, "-------------------------\n");
+    fprintf(report, "Average shortest path length: %.2f transfers\n", metrics.avg_shortest_path);
+    fprintf(report, "Network diameter: %d transfers\n", metrics.diameter);
+    fprintf(report, "Network efficiency: %.4f\n", metrics.network_efficiency);
+    fprintf(report, "analysed path pairs: %d\n", metrics.total_reachable_pairs);
+    fprintf(report, "\n");
+
+    // Recommendations
+    fprintf(report, "RECOMMENDATIONS\n");
+    fprintf(report, "---------------\n");
+
+    if (freq_analysis.isolated_stops > 0)
+    {
+        fprintf(report, "• %d isolated stops need connections to the network:\n", freq_analysis.isolated_stops);
+        fprintf(report, "  %s\n", freq_analysis.isolated_stop_names);
+    }
+
+    if (freq_analysis.low_frequency_stops > freq_analysis.high_frequency_stops)
+    {
+        fprintf(report, "• Many stops have low service frequency - consider route optimisation\n");
+    }
+
+    if (metrics.avg_shortest_path > 3.0)
+    {
+        fprintf(report, "• Average path length is high - consider express services or direct routes\n");
+    }
+
+    if (freq_analysis.avg_connections_per_stop < 5.0)
+    {
+        fprintf(report, "• Low overall connectivity - consider increasing route density\n");
+    }
+
+    fprintf(report, "• Focus on maintaining high-frequency service at hub stops\n");
+    fprintf(report, "• Consider accessibility from different geographic areas\n");
+
+    fprintf(report, "\n=======================================================\n");
+    fprintf(report, "End of Report\n");
+    fprintf(report, "=======================================================\n");
+
+    fclose(report);
+    printf("Network analysis report saved to %s\n", output_file);
 }
