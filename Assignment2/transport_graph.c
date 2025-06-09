@@ -69,10 +69,8 @@ bool add_bus_stop(TransportGraph* graph, int id, StopType type, const char* name
 
     graph->stops[index].id = id;
     graph->stops[index].type = type;
-    strncpy(graph->stops[index].name, name, 99);
-    graph->stops[index].name[99] = '\0';
-    strncpy(graph->stops[index].suburb, suburb, 49);
-    graph->stops[index].suburb[49] = '\0';
+    strncpy_s(graph->stops[index].name, 100, name, 99);
+    strncpy_s(graph->stops[index].suburb, 50, suburb, 49);
     graph->stops[index].latitude = lat;
     graph->stops[index].longitude = lng;
     graph->stops[index].edges = NULL;

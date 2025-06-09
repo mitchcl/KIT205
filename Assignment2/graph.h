@@ -1,118 +1,137 @@
-/**
- * Transport Graph Data Structures
- * KIT205 Assignment 2 - Tasmania Public Transport Analysis
- */
-
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
+#include <limits.h>
 
-#define MAX_NAME_LENGTH 100
-#define MAX_SUBURB_LENGTH 50
-#define MAX_PATH_LENGTH 50
-#define MAX_SERVICES 50
+// Maximum values for transport network
+#define MAX_STOPS 3000
+#define INFINITY INT_MAX
 
- /**
-  * Structure representing a bus stop in the transport network
-  */
+// Stop types in transport network
+typedef enum
+{
+    BUS_STOP,    // Regular bus stop
+    INTERCHANGE, // Major interchange/hub
+    TERMINUS,    // Route terminus
+    HOSPITAL,    // Hospital location
+    UNIVERSITY,  // University campus
+    SHOPPING,    // Shopping center
+    RESIDENTIAL  // Residential area
+} StopType;
+
+// Edge represents direct bus connection between stops
+typedef struct Edge
+{
+    int to;            // Destination stop
+    int travel_time;   // Travel time (minutes)
+    int route_id;      // Bus route number
+    int frequency;     // Buses per hour
+    struct Edge* next; // Next edge in adjacency list
+} Edge;
+
+// Node represents a bus stop or service location
 typedef struct
 {
-    int stop_id;
-    char name[MAX_NAME_LENGTH];
-    double latitude;
-    double longitude;
-    char suburb[MAX_SUBURB_LENGTH];
-    char stop_type[20];
+    int id;           // Unique identifier
+    StopType type;    // Type of stop/location
+    char name[100];   // Stop name
+    char suburb[50];  // Suburb name
+    double latitude;  // GPS coordinates
+    double longitude; // GPS coordinates
+    bool visited;     // For graph traversal algorithms
+    int distance;     // For shortest path algorithms (transfers)
+    int parent;       // Parent node in path
+    Edge* edges;      // Adjacency list of outgoing connections
 } BusStop;
 
-/**
- * Structure representing a connection between bus stops
- */
-typedef struct Connection
-{
-    int destination_stop_id;
-    int route_id;
-    int travel_time;
-    struct Connection* next;
-} Connection;
-
-/**
- * Structure representing an essential service
- */
+// Graph structure representing transport network
 typedef struct
 {
-    int service_id;
-    char name[MAX_NAME_LENGTH];
-    int stop_id;
-    char service_type[50];
-    double importance_weight;
-} EssentialService;
-
-/**
- * Adjacency list representation of transport network
- */
-typedef struct
-{
-    BusStop* stops;
-    Connection** adjacency_list;
-    int num_stops;
-    int capacity;
-    EssentialService* services;
-    int num_services;
+    BusStop* stops;      // Array of bus stops
+    int num_stops;       // Number of stops
+    int num_connections; // Number of direct connections
+    int* service_stops;  // Array of essential service stop IDs
+    int num_services;    // Number of essential services
 } TransportGraph;
 
-/**
- * Structure for storing shortest path results
- */
+// Accessibility analysis results
 typedef struct
 {
-    int* path;
-    int path_length;
-    int total_transfers;
-    int total_time;
-    bool path_found;
-} PathResult;
+    int stop_id;                // Stop identifier
+    double avg_travel_time;     // Average travel time to services
+    int num_transfers;          // Average number of transfers needed
+    double accessibility_score; // Composite accessibility score
+    char worst_service[50];     // Most difficult service to reach
+} AccessibilityStats;
 
-/**
- * Structure for accessibility analysis results
- */
+// Enhanced network analysis structures
 typedef struct
 {
-    int stop_id;
-    double accessibility_score;
-    int avg_transfers_to_services;
-    int unreachable_services;
-} AccessibilityResult;
+    double avg_shortest_path;
+    double network_efficiency;
+    int diameter;
+    int total_reachable_pairs;
+} NetworkMetrics;
 
-// Core graph operations
-TransportGraph* create_transport_graph(int initial_capacity);
-int add_bus_stop(TransportGraph* graph, int stop_id, const char* name, double lat, double lon, const char* suburb);
-int add_connection(TransportGraph* graph, int from_stop, int to_stop, int route_id, int travel_time);
+typedef struct
+{
+    int within_1_transfer;
+    int within_2_transfers;
+    int within_3_transfers;
+    int within_5_transfers;
+    int total_reachable;
+} CumulativeOpportunities;
+
+typedef struct
+{
+    int high_frequency_stops;
+    int medium_frequency_stops;
+    int low_frequency_stops;
+    int isolated_stops;
+    double avg_connections_per_stop;
+    int max_connections;
+    char busiest_stop[100];
+    char isolated_stop_names[500]; // Names of isolated stops
+} ServiceFrequencyAnalysis;
+
+// Function prototypes
+TransportGraph* create_transport_graph(int num_stops);
 void free_transport_graph(TransportGraph* graph);
+bool add_bus_stop(TransportGraph* graph, int id, StopType type, const char* name, const char* suburb, double lat, double lng);
+bool add_bus_connection(TransportGraph* graph, int from, int to, int travel_time, int route_id);
+bool add_service_location(TransportGraph* graph, int stop_id);
+void print_transport_graph(TransportGraph* graph);
 
-// Network analysis functions
-PathResult* find_shortest_path(TransportGraph* graph, int start_stop, int end_stop);
-void free_path_result(PathResult* result);
-void print_path(TransportGraph* graph, PathResult* result);
+// Algorithm implementations
+void bfs_shortest_path(TransportGraph* graph, int start, int* distances, int* parents);
 
 // Accessibility analysis
-AccessibilityResult* calculate_accessibility_score(TransportGraph* graph, int stop_id);
-void analyse_network_accessibility(TransportGraph* graph);
-int* find_critical_stops(TransportGraph* graph, int* num_critical);
+AccessibilityStats analyse_stop_accessibility(TransportGraph* graph, int stop_id);
 
-// Services
-int add_essential_service(TransportGraph* graph, int service_id, const char* name, int stop_id, const char* service_type, double weight);
-int load_services_from_file(TransportGraph* graph, const char* filename);
+// Enhanced analysis functions
+ServiceFrequencyAnalysis analyse_service_frequency(TransportGraph* graph);
+CumulativeOpportunities calculate_cumulative_opportunities(TransportGraph* graph, int start_stop);
+NetworkMetrics calculate_network_metrics(TransportGraph* graph);
+void generate_network_report(TransportGraph* graph, const char* output_file);
+
+// GTFS parsing functions
+void parse_gtfs_stops(TransportGraph* graph, const char* stops_file);
+void parse_gtfs_connections(TransportGraph* graph, const char* stop_times_file);
+TransportGraph* load_gtfs_data(const char* gtfs_directory);
+
+// Output and display functions
+void print_accessibility_stats(AccessibilityStats stats);
+void print_shortest_path(int* parents, int start, int end, TransportGraph* graph);
+void generate_smart_recommendations(TransportGraph* graph, AccessibilityStats* stats_array,
+    int num_locations, const char* location_names[]);
+void analyse_diverse_locations(TransportGraph* graph);
 
 // Utility functions
+void reset_graph_traversal_state(TransportGraph* graph);
 int find_stop_index(TransportGraph* graph, int stop_id);
-void print_graph_stats(TransportGraph* graph);
-
-// GTFS parsing
-int load_stops_from_file(TransportGraph* graph, const char* filename);
 
 #endif

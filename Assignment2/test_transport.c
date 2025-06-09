@@ -1,9 +1,9 @@
 ﻿#include <stdio.h>
 #include <assert.h>
-#include "../src/graph.h"
+#include "graph.h"
 
 // Test basic graph creation and manipulation
-void test_graph_creation()
+static void test_graph_creation()
 {
     printf("Testing graph creation...\n");
 
@@ -17,7 +17,7 @@ void test_graph_creation()
 }
 
 // Test adding bus stops
-void test_add_bus_stops()
+static void test_add_bus_stops()
 {
     printf("Testing bus stop addition...\n");
 
@@ -38,7 +38,7 @@ void test_add_bus_stops()
 }
 
 // Test adding connections between stops
-void test_add_connections()
+static void test_add_connections()
 {
     printf("Testing bus connections...\n");
 
@@ -63,7 +63,7 @@ void test_add_connections()
 }
 
 // Test BFS shortest path algorithm
-void test_bfs_shortest_path()
+static void test_bfs_shortest_path()
 {
     printf("Testing BFS shortest path...\n");
 
@@ -92,7 +92,7 @@ void test_bfs_shortest_path()
 }
 
 // Test loading sample data
-void test_load_sample_data()
+static void test_load_sample_data()
 {
     printf("Testing sample data loading...\n");
 

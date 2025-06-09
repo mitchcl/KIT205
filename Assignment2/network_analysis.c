@@ -60,10 +60,8 @@ ServiceFrequencyAnalysis analyse_service_frequency(TransportGraph* graph)
     analysis.avg_connections_per_stop = (double)total_connections / graph->num_stops;
     analysis.max_connections = max_connections;
 
-    if (max_stop_index >= 0)
-    {
-        strncpy(analysis.busiest_stop, graph->stops[max_stop_index].name, 99);
-        analysis.busiest_stop[99] = '\0';
+    if (max_stop_index >= 0) {
+        strncpy_s(analysis.busiest_stop, 100, graph->stops[max_stop_index].name, 99);
     }
 
     return analysis;
