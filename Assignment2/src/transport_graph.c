@@ -1,9 +1,25 @@
+/*
+ * transport_graph.c - Core graph implementation for transport network
+ * KIT205 Assignment 2
+ *
+ * Academic Integrity Statement:
+ * - Graph algorithms based on "Algorithms" by Robert Sedgewick
+ * - BFS implementation referenced from standard algorithm textbooks
+ * - Memory management patterns from "The C Programming Language" by K&R
+ * - Queue implementation for BFS inspired by GeeksforGeeks examples
+ * - AI assistance used for:
+ *   - Debugging memory leaks in graph cleanup functions
+ *   - Optimising BFS traversal performance
+ *   - Fixing edge case handling in pathfinding algorithms
+ *   - Resolving pointer arithmetic errors
+ */
+
 #include "graph.h"
 
 // Create a new transport graph with specified number of stops
-TransportGraph* create_transport_graph(int num_stops)
+TransportGraph *create_transport_graph(int num_stops)
 {
-    TransportGraph* graph = malloc(sizeof(TransportGraph));
+    TransportGraph *graph = malloc(sizeof(TransportGraph));
     if (!graph)
         return NULL;
 
@@ -35,7 +51,7 @@ TransportGraph* create_transport_graph(int num_stops)
 }
 
 // Free all memory allocated for the transport graph
-void free_transport_graph(TransportGraph* graph)
+void free_transport_graph(TransportGraph *graph)
 {
     if (!graph)
         return;
@@ -43,10 +59,10 @@ void free_transport_graph(TransportGraph* graph)
     // Free all edges
     for (int i = 0; i < graph->num_stops; i++)
     {
-        Edge* current = graph->stops[i].edges;
+        Edge *current = graph->stops[i].edges;
         while (current)
         {
-            Edge* temp = current;
+            Edge *temp = current;
             current = current->next;
             free(temp);
         }
@@ -58,8 +74,8 @@ void free_transport_graph(TransportGraph* graph)
 }
 
 // Add a bus stop to the graph
-bool add_bus_stop(TransportGraph* graph, int id, StopType type, const char* name,
-    const char* suburb, double lat, double lng)
+bool add_bus_stop(TransportGraph *graph, int id, StopType type, const char *name,
+                  const char *suburb, double lat, double lng)
 {
     if (!graph || graph->num_stops >= MAX_STOPS)
         return false;
@@ -69,8 +85,10 @@ bool add_bus_stop(TransportGraph* graph, int id, StopType type, const char* name
 
     graph->stops[index].id = id;
     graph->stops[index].type = type;
-    strncpy_s(graph->stops[index].name, 100, name, 99);
-    strncpy_s(graph->stops[index].suburb, 50, suburb, 49);
+    strncpy(graph->stops[index].name, name, 99);
+    graph->stops[index].name[99] = '\0'; // Ensure null termination
+    strncpy(graph->stops[index].suburb, suburb, 49);
+    graph->stops[index].suburb[49] = '\0'; // Ensure null termination
     graph->stops[index].latitude = lat;
     graph->stops[index].longitude = lng;
     graph->stops[index].edges = NULL;
@@ -94,7 +112,7 @@ bool add_bus_stop(TransportGraph* graph, int id, StopType type, const char* name
 }
 
 // Find stop index by ID
-int find_stop_index(TransportGraph* graph, int stop_id)
+int find_stop_index(TransportGraph *graph, int stop_id)
 {
     for (int i = 0; i < graph->num_stops; i++)
     {
@@ -107,7 +125,7 @@ int find_stop_index(TransportGraph* graph, int stop_id)
 }
 
 // Add a bus connection between two stops
-bool add_bus_connection(TransportGraph* graph, int from_id, int to_id, int travel_time, int route_id)
+bool add_bus_connection(TransportGraph *graph, int from_id, int to_id, int travel_time, int route_id)
 {
     if (!graph)
         return false;
@@ -119,7 +137,7 @@ bool add_bus_connection(TransportGraph* graph, int from_id, int to_id, int trave
         return false;
 
     // Create new edge
-    Edge* new_edge = malloc(sizeof(Edge));
+    Edge *new_edge = malloc(sizeof(Edge));
     if (!new_edge)
         return false;
 
@@ -136,7 +154,7 @@ bool add_bus_connection(TransportGraph* graph, int from_id, int to_id, int trave
 }
 
 // Print the transport graph
-void print_transport_graph(TransportGraph* graph)
+void print_transport_graph(TransportGraph *graph)
 {
     if (!graph)
         return;
@@ -149,23 +167,23 @@ void print_transport_graph(TransportGraph* graph)
     printf("Bus Stops:\n");
     for (int i = 0; i < graph->num_stops; i++)
     {
-        BusStop* stop = &graph->stops[i];
-        const char* type_str = (stop->type == INTERCHANGE) ? "Interchange" : (stop->type == HOSPITAL) ? "Hospital"
-            : (stop->type == UNIVERSITY) ? "University"
-            : (stop->type == SHOPPING) ? "Shopping"
-            : (stop->type == TERMINUS) ? "Terminus"
-            : (stop->type == RESIDENTIAL) ? "Residential"
-            : "Bus Stop";
+        BusStop *stop = &graph->stops[i];
+        const char *type_str = (stop->type == INTERCHANGE) ? "Interchange" : (stop->type == HOSPITAL)  ? "Hospital"
+                                                                         : (stop->type == UNIVERSITY)  ? "University"
+                                                                         : (stop->type == SHOPPING)    ? "Shopping"
+                                                                         : (stop->type == TERMINUS)    ? "Terminus"
+                                                                         : (stop->type == RESIDENTIAL) ? "Residential"
+                                                                                                       : "Bus Stop";
 
         printf("  [%d] %s (%s) - %s\n", stop->id, stop->name, type_str, stop->suburb);
 
         // Print connections
-        Edge* edge = stop->edges;
+        Edge *edge = stop->edges;
         while (edge)
         {
-            BusStop* dest = &graph->stops[edge->to];
+            BusStop *dest = &graph->stops[edge->to];
             printf("    -> Route %d to %s (%d min)\n",
-                edge->route_id, dest->name, edge->travel_time);
+                   edge->route_id, dest->name, edge->travel_time);
             edge = edge->next;
         }
     }
@@ -173,7 +191,7 @@ void print_transport_graph(TransportGraph* graph)
 }
 
 // Reset graph traversal state
-void reset_graph_traversal_state(TransportGraph* graph)
+void reset_graph_traversal_state(TransportGraph *graph)
 {
     if (!graph)
         return;
@@ -187,7 +205,7 @@ void reset_graph_traversal_state(TransportGraph* graph)
 }
 
 // BFS shortest path implementation
-void bfs_shortest_path(TransportGraph* graph, int start_index, int* distances, int* parents)
+void bfs_shortest_path(TransportGraph *graph, int start_index, int *distances, int *parents)
 {
     if (!graph || start_index < 0 || start_index >= graph->num_stops)
         return;
@@ -215,7 +233,7 @@ void bfs_shortest_path(TransportGraph* graph, int start_index, int* distances, i
         int current = queue[front++];
 
         // Explore all neighbors
-        Edge* edge = graph->stops[current].edges;
+        Edge *edge = graph->stops[current].edges;
         while (edge)
         {
             int neighbor = edge->to;
@@ -233,9 +251,9 @@ void bfs_shortest_path(TransportGraph* graph, int start_index, int* distances, i
 }
 
 // Calculate accessibility score for a stop
-AccessibilityStats analyse_stop_accessibility(TransportGraph* graph, int stop_index)
+AccessibilityStats analyse_stop_accessibility(TransportGraph *graph, int stop_index)
 {
-    AccessibilityStats stats = { 0 };
+    AccessibilityStats stats = {0};
 
     if (!graph || stop_index < 0 || stop_index >= graph->num_stops)
     {
@@ -264,9 +282,9 @@ AccessibilityStats analyse_stop_accessibility(TransportGraph* graph, int stop_in
             if (distances[service_index] > max_distance)
             {
                 max_distance = distances[service_index];
-                BusStop* service = &graph->stops[service_index];
+                BusStop *service = &graph->stops[service_index];
                 strncpy(stats.worst_service, service->name, 49);
-                stats.worst_service[49] = '\0'; // Ensure null termination
+                stats.worst_service[49] = '\0';  // Ensure null termination
             }
         }
     }
@@ -298,12 +316,12 @@ void print_accessibility_stats(AccessibilityStats stats)
 }
 
 // Print shortest path between two stops
-void print_shortest_path(int* parents, int start, int end, TransportGraph* graph)
+void print_shortest_path(int *parents, int start, int end, TransportGraph *graph)
 {
     if (parents[end] == -1)
     {
         printf("No path found from %s to %s\n",
-            graph->stops[start].name, graph->stops[end].name);
+               graph->stops[start].name, graph->stops[end].name);
         return;
     }
 
@@ -318,11 +336,12 @@ void print_shortest_path(int* parents, int start, int end, TransportGraph* graph
         current = parents[current];
     }
 
-    printf("Route from %s to %s (%d transfers):\n", graph->stops[start].name, graph->stops[end].name, path_length - 1);
+    printf("Route from %s to %s (%d transfers):\n",
+           graph->stops[start].name, graph->stops[end].name, path_length - 1);
 
     for (int i = path_length - 1; i >= 0; i--)
     {
-        BusStop* stop = &graph->stops[path[i]];
+        BusStop *stop = &graph->stops[path[i]];
         printf("  %s (%s)", stop->name, stop->suburb);
         if (i > 0)
             printf(" -> ");
@@ -331,7 +350,7 @@ void print_shortest_path(int* parents, int start, int end, TransportGraph* graph
 }
 
 // Add a service location to the graph's service list
-bool add_service_location(TransportGraph* graph, int stop_id)
+bool add_service_location(TransportGraph *graph, int stop_id)
 {
     if (!graph || graph->num_services >= 20)
         return false;
@@ -356,7 +375,8 @@ bool add_service_location(TransportGraph* graph, int stop_id)
 }
 
 // Generate intelligent recommendations based on network analysis
-void generate_smart_recommendations(TransportGraph* graph, AccessibilityStats* stats_array, int num_locations, const char* location_names[])
+void generate_smart_recommendations(TransportGraph *graph, AccessibilityStats *stats_array,
+                                    int num_locations, const char *location_names[])
 {
     if (!graph || !stats_array)
         return;
@@ -370,44 +390,44 @@ void generate_smart_recommendations(TransportGraph* graph, AccessibilityStats* s
 
         if (stats.accessibility_score < 10.0)
         {
-            printf("• %s shows poor accessibility (%.1f/100) - consider direct routes to essential services\n",
-                location_names[i], stats.accessibility_score);
+            printf("â€¢ %s shows poor accessibility (%.1f/100) - consider direct routes to essential services\n",
+                   location_names[i], stats.accessibility_score);
         }
         else if (stats.accessibility_score < 30.0)
         {
-            printf("• %s has limited connectivity (%.1f/100) - additional connections would improve access\n",
-                location_names[i], stats.accessibility_score);
+            printf("â€¢ %s has limited connectivity (%.1f/100) - additional connections would improve access\n",
+                   location_names[i], stats.accessibility_score);
         }
         else if (stats.accessibility_score > 50.0)
         {
-            printf("• %s is well-connected (%.1f/100) - maintain high frequency services\n",
-                location_names[i], stats.accessibility_score);
+            printf("â€¢ %s is well-connected (%.1f/100) - maintain high frequency services\n",
+                   location_names[i], stats.accessibility_score);
         }
 
         // Transfer-specific recommendations
         if (stats.num_transfers > 2)
         {
-            printf("• %s requires %d transfers on average - direct routes could reduce travel complexity\n",
-                location_names[i], stats.num_transfers);
+            printf("â€¢ %s requires %d transfers on average - direct routes could reduce travel complexity\n",
+                   location_names[i], stats.num_transfers);
         }
     }
 
     // Network-wide recommendations
     if (graph->num_connections < graph->num_stops)
     {
-        printf("• Network has sparse connectivity (%.1f connections per stop) - consider adding more routes\n",
-            (double)graph->num_connections / graph->num_stops);
+        printf("â€¢ Network has sparse connectivity (%.1f connections per stop) - consider adding more routes\n",
+               (double)graph->num_connections / graph->num_stops);
     }
 
     // Service coverage analysis
     if (graph->num_services < 4)
     {
-        printf("• Limited essential services identified - expand service location coverage\n");
+        printf("â€¢ Limited essential services identified - expand service location coverage\n");
     }
 }
 
 // Automatically select diverse stops for analysis based on their characteristics
-void analyse_diverse_locations(TransportGraph* graph)
+void analyse_diverse_locations(TransportGraph *graph)
 {
     if (!graph || graph->num_stops == 0)
         return;
@@ -421,13 +441,13 @@ void analyse_diverse_locations(TransportGraph* graph)
     // Identify different types of stops automatically
     for (int i = 0; i < graph->num_stops; i++)
     {
-        BusStop* stop = &graph->stops[i];
+        BusStop *stop = &graph->stops[i];
         if (stop->id == -1)
             continue; // Skip unused slots
 
         // Count connections for this stop
         int connections = 0;
-        Edge* edge = stop->edges;
+        Edge *edge = stop->edges;
         while (edge)
         {
             connections++;
@@ -457,7 +477,7 @@ void analyse_diverse_locations(TransportGraph* graph)
 
     // analyse selected locations dynamically
     AccessibilityStats all_stats[4];
-    const char* location_types[4];
+    const char *location_types[4];
     int analysis_count = 0;
 
     if (interchange_stop != -1)
@@ -503,7 +523,8 @@ void analyse_diverse_locations(TransportGraph* graph)
         int distances[graph->num_stops], parents[graph->num_stops];
         bfs_shortest_path(graph, interchange_stop, distances, parents);
 
-        printf("Route Example 1: %s to %s\n", graph->stops[interchange_stop].name, graph->stops[service_stop].name);
+        printf("Route Example 1: %s to %s\n",
+               graph->stops[interchange_stop].name, graph->stops[service_stop].name);
         print_shortest_path(parents, interchange_stop, service_stop, graph);
     }
 
@@ -513,16 +534,18 @@ void analyse_diverse_locations(TransportGraph* graph)
         bfs_shortest_path(graph, regular_stop, distances, parents);
 
         printf("Route Example 2: %s to %s\n",
-            graph->stops[regular_stop].name, graph->stops[service_stop].name);
+               graph->stops[regular_stop].name, graph->stops[service_stop].name);
         print_shortest_path(parents, regular_stop, service_stop, graph);
     }
 
     printf("NETWORK ANALYSIS SUMMARY\n");
     for (int i = 0; i < analysis_count; i++)
     {
-        const char* performance = (all_stats[i].accessibility_score > 40) ? "Excellent" : (all_stats[i].accessibility_score > 20) ? "Good" : (all_stats[i].accessibility_score > 5) ? "Limited" : "Poor";
-        printf("• %s: %s connectivity (%.1f/100)\n",
-            location_types[i], performance, all_stats[i].accessibility_score);
+        const char *performance = (all_stats[i].accessibility_score > 40) ? "Excellent" : (all_stats[i].accessibility_score > 20) ? "Good"
+                                                                                      : (all_stats[i].accessibility_score > 5)    ? "Limited"
+                                                                                                                                  : "Poor";
+        printf("â€¢ %s: %s connectivity (%.1f/100)\n",
+               location_types[i], performance, all_stats[i].accessibility_score);
     }
 
     printf("\n");

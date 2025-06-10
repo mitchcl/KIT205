@@ -1,0 +1,12 @@
+metro_analysis
+test_transport
+src/gtfs_parser.o
+src/main_gtfs.o
+src/network_analysis.o
+src/main_transport.o
+data/results/network_analysis_report.txt
+src/transport_graph.o
+tests/test_transport.o
+metro_gtfs_analysis
+gtfs_analysis
+transport_analysis

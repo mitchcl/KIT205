@@ -1,4 +1,21 @@
-﻿#define _GNU_SOURCE
+﻿/*
+ * gtfs_parser.c - GTFS data parser for real transit data
+ * KIT205 Assignment 2
+ * 
+ * Academic Integrity Statement:
+ * - GTFS file format specification from Google Transit documentation:
+ *   https://developers.google.com/transit/gtfs/reference
+ * - CSV parsing techniques referenced from Stack Overflow discussions
+ * - File I/O patterns from "The C Programming Language" by Kernighan & Ritchie
+ * - String manipulation functions from C standard library documentation
+ * - AI assistance used for:
+ *   - Debugging CSV parsing edge cases (quoted fields, escaped commas)
+ *   - Optimising file reading performance for large datasets
+ *   - Fixing buffer overflow issues in string handling
+ *   - Error handling for malformed GTFS files
+ */
+
+#define _GNU_SOURCE
 #include "graph.h"
 
 // GTFS parser for transport network analysis

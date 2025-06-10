@@ -1,3 +1,18 @@
+/*
+ * graph.h - Header file for Tasmania Transport Network Analysis
+ * KIT205 Assignment 2
+ * 
+ * Academic Integrity Statement:
+ * - Graph data structure design based on "Introduction to Algorithms" by Cormen et al.
+ * - Adjacency list representation referenced from standard CS textbooks
+ * - GTFS (General Transit Feed Specification) structures based on:
+ *   https://developers.google.com/transit/gtfs/reference
+ * - Enum design patterns from C programming best practices
+ * - AI assistance used for:
+ *   - Debugging memory allocation issues
+ *   - Optimising struct definitions for memory alignment
+ *   - Error handling improvements
+ */
 #ifndef GRAPH_H
 #define GRAPH_H
 

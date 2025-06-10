@@ -1,4 +1,17 @@
-﻿#include "graph.h"
+﻿/*
+ * main_transport.c - Main program for Tasmania Transport Analysis
+ * KIT205 Assignment 2
+ * 
+ * Academic Integrity Statement:
+ * - Sample transport data based on Metro Tasmania timetables and routes
+ * - Program structure influenced by modular C programming practices
+ * - AI assistance used for:
+ *   - Debugging segmentation faults in graph initialization
+ *   - Optimising output formatting for readability
+ *   - Error handling in main program flow
+ */
+
+#include "graph.h"
 
 // Demonstrate the Tasmania public transport analysis system
 void demonstrate_transport_analysis()

@@ -1,4 +1,21 @@
-﻿#include "graph.h"
+﻿/*
+ * main_gtfs.c - Main program for real GTFS data analysis
+ * KIT205 Assignment 2
+ * 
+ * Academic Integrity Statement:
+ * - GTFS data processing workflow based on transit analysis examples from:
+ *   OpenTripPlanner documentation and SUMO traffic simulation guides
+ * - Performance measurement using C standard library timing functions
+ * - Program flow structure influenced by data processing best practices
+ * - Output formatting patterns from C programming tutorials
+ * - AI assistance used for:
+ *   - Debugging file path handling for GTFS data loading
+ *   - Optimising large dataset processing performance
+ *   - Fixing memory management issues with real-world data sizes
+ *   - Improving error messages and user feedback
+ */
+
+#include "graph.h"
 #include <time.h>
 
 int main()

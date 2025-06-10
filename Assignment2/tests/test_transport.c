@@ -1,6 +1,24 @@
-﻿#include <stdio.h>
+﻿/*
+ * test_transport.c - Unit tests for transport graph functionality
+ * KIT205 Assignment 2
+ * 
+ * Academic Integrity Statement:
+ * - Unit testing patterns based on C testing frameworks and examples from:
+ *   "Test-Driven Development for Embedded C" by James W. Grenning
+ * - Assert-based testing approach from C standard library documentation
+ * - Test structure influenced by industry best practices for C testing
+ * - Memory leak testing patterns from online C programming resources
+ * - AI assistance used for:
+ *   - Debugging test failures and assertion errors
+ *   - Optimising test coverage for edge cases
+ *   - Fixing memory cleanup issues in test teardown
+ *   - Improving test output formatting and error reporting
+ */
+
+
+#include <stdio.h>
 #include <assert.h>
-#include "graph.h"
+#include "../src/graph.h"
 
 // Test basic graph creation and manipulation
 static void test_graph_creation()

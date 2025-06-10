@@ -1,3 +1,21 @@
+/*
+ * network_analysis.c - Advanced network analysis algorithms
+ * KIT205 Assignment 2
+ * 
+ * Academic Integrity Statement:
+ * - Network analysis algorithms based on graph theory concepts from:
+ *   "Introduction to Graph Theory" by Richard J. Trudeau
+ * - Centrality measures inspired by social network analysis literature
+ * - Statistical analysis methods from C programming examples online
+ * - Performance timing using standard C library clock functions
+ * - AI assistance used for:
+ *   - Debugging complex nested loop structures in analysis functions
+ *   - Optimizing algorithm efficiency for large networks
+ *   - Fixing calculation errors in centrality measures
+ *   - Improving statistical output formatting
+ */
+
+
 #include "graph.h"
 #include <time.h>
 
@@ -61,7 +79,8 @@ ServiceFrequencyAnalysis analyse_service_frequency(TransportGraph* graph)
     analysis.max_connections = max_connections;
 
     if (max_stop_index >= 0) {
-        strncpy_s(analysis.busiest_stop, 100, graph->stops[max_stop_index].name, 99);
+        strncpy(analysis.busiest_stop, graph->stops[max_stop_index].name, 99);
+        analysis.busiest_stop[99] = '\0';  // Ensure null termination
     }
 
     return analysis;
@@ -119,7 +138,7 @@ NetworkMetrics calculate_network_metrics(TransportGraph* graph)
 
     printf("Calculating network metrics (this may take a moment)...\n");
 
-    // Sample analysis from key hubs to avoid O(n²) complexity
+    // Sample analysis from key hubs to avoid O(nï¿½) complexity
     int sample_size = (graph->num_stops > 100) ? 50 : graph->num_stops;
     int step = graph->num_stops / sample_size;
     if (step < 1)
@@ -271,27 +290,27 @@ void generate_network_report(TransportGraph* graph, const char* output_file)
 
     if (freq_analysis.isolated_stops > 0)
     {
-        fprintf(report, "• %d isolated stops need connections to the network:\n", freq_analysis.isolated_stops);
+        fprintf(report, "ï¿½ %d isolated stops need connections to the network:\n", freq_analysis.isolated_stops);
         fprintf(report, "  %s\n", freq_analysis.isolated_stop_names);
     }
 
     if (freq_analysis.low_frequency_stops > freq_analysis.high_frequency_stops)
     {
-        fprintf(report, "• Many stops have low service frequency - consider route optimisation\n");
+        fprintf(report, "ï¿½ Many stops have low service frequency - consider route optimisation\n");
     }
 
     if (metrics.avg_shortest_path > 3.0)
     {
-        fprintf(report, "• Average path length is high - consider express services or direct routes\n");
+        fprintf(report, "ï¿½ Average path length is high - consider express services or direct routes\n");
     }
 
     if (freq_analysis.avg_connections_per_stop < 5.0)
     {
-        fprintf(report, "• Low overall connectivity - consider increasing route density\n");
+        fprintf(report, "ï¿½ Low overall connectivity - consider increasing route density\n");
     }
 
-    fprintf(report, "• Focus on maintaining high-frequency service at hub stops\n");
-    fprintf(report, "• Consider accessibility from different geographic areas\n");
+    fprintf(report, "ï¿½ Focus on maintaining high-frequency service at hub stops\n");
+    fprintf(report, "ï¿½ Consider accessibility from different geographic areas\n");
 
     fprintf(report, "\n=======================================================\n");
     fprintf(report, "End of Report\n");
